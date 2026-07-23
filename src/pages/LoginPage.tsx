@@ -1,6 +1,8 @@
+// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, ArrowRight, EyeOff } from 'lucide-react';
+import { Lock, ArrowRight } from 'lucide-react';
+import AntaraLogo from '../assets/Antara.svg';
 
 export const LoginPage: React.FC = () => {
   const { login, loginAsAnonymous } = useAuth();
@@ -15,108 +17,108 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFC] flex flex-col justify-center items-center px-4 py-12">
-      <div className="max-w-md w-full space-y-8">
-        
-        {/* Branding Header */}
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,rgba(220,212,255,0.65),transparent_32%),linear-gradient(180deg,#FAFAFC_0%,#F7F4FF_100%)] flex flex-col justify-center items-center px-4 py-12">
+      <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#DCD4FF] text-[#7c6af2] mb-4 shadow-sm">
-            <Shield size={36} />
-          </div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight font-['Sora']">
-            SafeSpace AI
-          </h1>
-          <p className="mt-2 text-sm text-gray-600 font-['Manrope']">
-            Empowering women with legal, psychological & AI-guided support.
+          <img
+            src={AntaraLogo}
+            alt="Antara logo"
+            className="mx-auto mb-4 h-auto w-52.5 object-contain"
+          />
+          <p className="text-sm font-medium text-[#5B6473]">
+            AI-powered support for women’s safety, legal clarity, and next-step guidance.
           </p>
         </div>
 
-        {/* Anonymous Mode Highlight Box */}
-        <div className="bg-gradient-to-r from-[#DCD4FF]/60 to-[#7c6af2]/10 border border-[#7c6af2]/20 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-start space-x-3">
-            <div className="p-2 bg-[#7c6af2] text-white rounded-xl mt-0.5">
-              <EyeOff size={20} />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-sm font-bold text-gray-900 font-['Sora']">
-                Need Immediate & Confidential Help?
+        <div className="rounded-[28px] border border-[#DCD4FF] bg-white/90 p-5 shadow-[0_18px_50px_rgba(124,106,242,0.12)] backdrop-blur-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-extrabold text-[#1F2937] font-['Sora']">
+                Anonymous Mode
               </h3>
-              <p className="text-xs text-gray-600 mt-1 font-['Manrope']">
-                Explore legal rights, analyze your situation, and draft complaints without sharing personal details.
+              <p className="text-xs text-[#5B6473] mt-1">
+                Explore support resources without sharing personal details.
               </p>
-              <button
-                onClick={loginAsAnonymous}
-                type="button"
-                className="mt-3 w-full py-2.5 px-4 bg-[#7c6af2] hover:bg-[#6855e0] text-white font-semibold text-sm rounded-xl transition duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg font-['Manrope']"
-              >
-                <span>Continue Anonymously</span>
-                <ArrowRight size={16} />
-              </button>
             </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="relative flex py-1 items-center">
-          <div className="flex-grow border-t border-gray-200"></div>
-          <span className="flex-shrink mx-4 text-xs font-semibold text-gray-400 uppercase tracking-wider font-['Manrope']">
-            Or Sign In to Save History
-          </span>
-          <div className="flex-grow border-t border-gray-200"></div>
-        </div>
-
-        {/* Standard Login Form */}
-        <form className="mt-2 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1 font-['Manrope']">
-              Email Address
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7c6af2] outline-none font-['Manrope'] bg-white text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1 font-['Manrope']">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#7c6af2] outline-none font-['Manrope'] bg-white text-sm"
-            />
+            <span className="rounded-full bg-[#F7C94A] px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#1F2937] font-['Sora']">
+              Private
+            </span>
           </div>
 
           <button
-            type="submit"
-            className="w-full py-3 px-4 bg-gray-900 hover:bg-black text-white font-semibold text-sm rounded-xl transition duration-200 flex items-center justify-center space-x-2 font-['Manrope'] shadow-sm"
+            onClick={loginAsAnonymous}
+            type="button"
+            className="w-full rounded-2xl bg-[#7c6af2] px-4 py-3 text-sm font-extrabold text-white shadow-[0_12px_30px_rgba(124,106,242,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#6855e0] active:translate-y-0"
           >
-            <Lock size={16} />
-            <span>Sign In to Account</span>
+            <span className="flex items-center justify-center gap-2">
+              Continue Anonymously
+              <ArrowRight size={18} />
+            </span>
           </button>
-        </form>
+        </div>
 
-        {/* Demo Quick Button for Hackathon Presentation */}
-        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200 text-center">
-          <p className="text-xs text-gray-500 font-medium mb-1 font-['Manrope']">
-            ⚡ Hackathon Demo Quick Test
+        <div className="rounded-[28px] border border-[#DCD4FF] bg-white/90 p-5 shadow-[0_18px_50px_rgba(124,106,242,0.12)] backdrop-blur-sm">
+          <div className="relative flex items-center py-1">
+            <div className="grow border-t border-[#DCD4FF]"></div>
+            <span className="shrink mx-4 text-[11px] font-extrabold uppercase tracking-[0.25em] text-[#7c6af2]">
+              Or Sign In to Save History
+            </span>
+            <div className="grow border-t border-[#DCD4FF]"></div>
+          </div>
+
+          <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <label className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#5B6473]">
+                Email Address
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full rounded-2xl border border-[#DCD4FF] bg-[#FAFAFC] px-4 py-3 text-sm text-[#1F2937] outline-none transition duration-150 placeholder:text-[#8A93A3] focus:border-[#7c6af2] focus:ring-4 focus:ring-[#DCD4FF]"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#5B6473]">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-2xl border border-[#DCD4FF] bg-[#FAFAFC] px-4 py-3 text-sm text-[#1F2937] outline-none transition duration-150 placeholder:text-[#8A93A3] focus:border-[#7c6af2] focus:ring-4 focus:ring-[#DCD4FF]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full rounded-2xl bg-[#1F2937] px-4 py-3 text-sm font-extrabold text-white transition duration-200 hover:bg-black active:scale-[0.99]"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Lock size={16} />
+                Sign In to Account
+              </span>
+            </button>
+          </form>
+        </div>
+
+        <div className="rounded-2xl border border-[#DCD4FF] bg-white px-4 py-3 text-center shadow-[0_8px_24px_rgba(124,106,242,0.08)]">
+          <p className="mb-1 text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#5B6473]">
+            ⚡ Presentation Quick Test
           </p>
           <button
+            type="button"
             onClick={() => login('demo.user@safespace.org')}
-            className="text-xs text-[#7c6af2] hover:underline font-semibold font-['Manrope']"
+            className="text-sm font-extrabold text-[#7c6af2] transition hover:text-[#6855e0]"
           >
             Log in as Demo Registered User
           </button>
         </div>
-
       </div>
     </div>
   );
