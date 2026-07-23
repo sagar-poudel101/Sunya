@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Shield, EyeOff, User as UserIcon, LogOut, Sparkles, FolderLock, Users } from 'lucide-react';
+import { EyeOff, User as UserIcon, LogOut, Sparkles, FolderLock, Users } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: 'assistant' | 'vault' | 'directory';
@@ -15,12 +15,26 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
         {/* Brand Logo */}
-        <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('assistant')}>
-          <div className="w-10 h-10 rounded-xl bg-[#DCD4FF] text-[#7c6af2] flex items-center justify-center font-bold shadow-xs">
-            <Shield size={24} />
+        <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => setActiveTab('assistant')}>
+          <div className="w-9 h-9 rounded-lg bg-[#F3EEFF] border border-[#DDD3FF] text-[#7c6af2] flex items-center justify-center shadow-sm">
+            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
+              <path
+                d="M12 3L18 5.5V11.5C18 15.2 15.3 18.3 12 20C8.7 18.3 6 15.2 6 11.5V5.5L12 3Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9.3 11.8L11.1 13.6L14.9 9.8"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
           <div>
-            <span className="text-xl font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
+            <span className="text-lg font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
               Antara
             </span>
             <span className="text-[10px] text-gray-500 font-['Manrope'] font-semibold">
