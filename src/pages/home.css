@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap');
+
+:root{
+  --color-primary: #7c6af2;
+  --color-secondary: #DCD4FF;
+  --color-accent: #F7C94A;
+  --color-bg: #FAFAFC;
+  --color-success: #FAFAFC;
+  --color-warning: #FF8A80;
+  --text-heading: #0f172a;
+  --text-body: #334155;
+}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg);font-family:'Manrope',system-ui,Arial,Helvetica,sans-serif;color:var(--text-body)}
+.home{min-height:100vh;display:flex;flex-direction:column}
+
+.site-header{display:flex;justify-content:space-between;align-items:center;padding:20px 40px}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-img{width:44px;height:44px;object-fit:contain}
+.brand{font-family:'Sora',sans-serif;font-weight:700;color:var(--color-primary);font-size:20px}
+
+.nav a{margin-left:20px;color:var(--text-body);text-decoration:none;font-weight:600}
+.nav a:hover{color:var(--color-primary)}
+
+.hero{flex:1;display:flex;align-items:center;justify-content:center;padding:60px 24px;background:linear-gradient(180deg,var(--color-secondary) 0%, rgba(220,212,255,0.4) 60%)}
+.hero-content{max-width:980px;text-align:left}
+.hero h1{font-family:'Sora',sans-serif;color:var(--text-heading);font-size:48px;margin:0 0 16px}
+.lead{font-size:18px;color:var(--text-body);margin-bottom:24px}
+
+.cta{display:flex;gap:12px}
+.btn{padding:12px 18px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--color-primary);color:white}
+.btn.ghost{background:transparent;border:1px solid rgba(15,23,42,0.06);color:var(--text-body)}
+
+@media (max-width:720px){
+  .site-header{padding:16px}
+  .hero h1{font-size:34px}
+  .nav{display:none}
+}
