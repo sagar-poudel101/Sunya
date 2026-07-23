@@ -1,40 +1,45 @@
-// src/App.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
+import { Navbar } from './components/common_com/Navbar';
 
-// Main App Wrapper to check auth state
-const MainContent: React.FC = () => {
-  const { user, isAnonymous, logout } = useAuth();
+import { AssistantPage } from './pages/AssistantPage';
 
-  // If not logged in & not anonymous, show Login Page
+const DashboardContent: React.FC = () => {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<'assistant' | 'vault' | 'directory'>('assistant');
+
   if (!user) {
     return <LoginPage />;
   }
 
-  // Once logged in or entered anonymously, show a temporary success screen
   return (
-    <div className="min-h-screen bg-[#FAFAFC] flex flex-col items-center justify-center p-6 text-center">
-      <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-md w-full">
-        <h2 className="text-2xl font-bold font-['Sora'] text-gray-900 mb-2">
-          Welcome to SafeSpace AI!
-        </h2>
-        
-        <div className="my-4 p-3 rounded-xl bg-[#DCD4FF]/40 text-[#7c6af2] font-semibold text-sm font-['Manrope']">
-          {isAnonymous ? '🕶️ Mode: Anonymous Mode Active' : `👤 Logged in as: ${user.name}`}
-        </div>
+    <div className="min-h-screen bg-[#FAFAFC]">
+      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      <main className="pb-16">
+        {activeTab === 'assistant' && (
+          <AssistantPage
+            onNavigateToDraft={() => alert('Heading to Complaint Draft Generator!')}
+            onNavigateToVault={() => setActiveTab('vault')}
+            onNavigateToDirectory={() => setActiveTab('directory')}
+          />
+        )}
 
-        <p className="text-sm text-gray-600 mb-6 font-['Manrope']">
-          Next, we will build the top **Navbar** and the **AI Assistant Page** where users describe their situation.
-        </p>
+        {activeTab === 'vault' && (
+          <div className="max-w-4xl mx-auto mt-12 p-8 bg-white rounded-3xl border border-gray-200 text-center">
+            <h2 className="text-2xl font-bold font-['Sora']">🔒 Secure Evidence Vault</h2>
+            <p className="text-xs text-gray-500 mt-2">Next up: Drag-and-drop evidence upload zone with file tagging.</p>
+          </div>
+        )}
 
-        <button
-          onClick={logout}
-          className="w-full py-2.5 px-4 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-medium text-sm transition font-['Manrope']"
-        >
-          Back to Login
-        </button>
-      </div>
+        {activeTab === 'directory' && (
+          <div className="max-w-4xl mx-auto mt-12 p-8 bg-white rounded-3xl border border-gray-200 text-center">
+            <h2 className="text-2xl font-bold font-['Sora']">⚖️ Lawyers & Therapists Directory</h2>
+            <p className="text-xs text-gray-500 mt-2">Next up: Verified support map and provider cards.</p>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
@@ -42,7 +47,7 @@ const MainContent: React.FC = () => {
 export default function App() {
   return (
     <AuthProvider>
-      <MainContent />
+      <DashboardContent />
     </AuthProvider>
   );
 }
