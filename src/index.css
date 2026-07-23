@@ -1,14 +1,41 @@
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap');
 
 @import "tailwindcss";
+
 @layer base {
   body {
     font-family: 'Manrope', sans-serif;
     background-color: #FAFAFC;
     color: #1F2937;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Sora', sans-serif;
+  }
+}
+
+.logo-bounce {
+  animation: logo-bounce 2.8s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes logo-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  50% {
+    transform: translateY(-9px) scale(1.04);
+  }
+  75% {
+    transform: translateY(-3px) scale(1.01);
   }
 }

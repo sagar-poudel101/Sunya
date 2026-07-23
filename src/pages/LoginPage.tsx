@@ -1,4 +1,3 @@
-// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Lock, ArrowRight } from 'lucide-react';
@@ -23,7 +22,7 @@ export const LoginPage: React.FC = () => {
           <img
             src={AntaraLogo}
             alt="Antara logo"
-            className="mx-auto mb-4 h-auto w-52.5 object-contain"
+            className="logo-bounce mx-auto mb-4 h-auto w-52.5 object-contain"
           />
           <p className="text-sm font-medium text-[#5B6473]">
             AI-powered support for women’s safety, legal clarity, and next-step guidance.
@@ -107,18 +106,7 @@ export const LoginPage: React.FC = () => {
           </form>
         </div>
 
-        <div className="rounded-2xl border border-[#DCD4FF] bg-white px-4 py-3 text-center shadow-[0_8px_24px_rgba(124,106,242,0.08)]">
-          <p className="mb-1 text-[11px] font-extrabold uppercase tracking-[0.24em] text-[#5B6473]">
-            ⚡ Presentation Quick Test
-          </p>
-          <button
-            type="button"
-            onClick={() => login('demo.user@safespace.org')}
-            className="text-sm font-extrabold text-[#7c6af2] transition hover:text-[#6855e0]"
-          >
-            Log in as Demo Registered User
-          </button>
-        </div>
+
       </div>
     </div>
   );
