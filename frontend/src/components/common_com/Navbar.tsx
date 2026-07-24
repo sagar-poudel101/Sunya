@@ -1,44 +1,27 @@
+// src/components/common/Navbar.tsx
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { EyeOff, User as UserIcon, LogOut, Sparkles, FolderLock, Users } from 'lucide-react';
+import { EyeOff, User as UserIcon, LogOut, Sparkles, FolderLock, Users, LayoutList } from 'lucide-react';
 
 interface NavbarProps {
-  activeTab: 'assistant' | 'vault' | 'directory';
-  setActiveTab: (tab: 'assistant' | 'vault' | 'directory') => void;
+  activeTab: 'feed' | 'assistant' | 'vault' | 'directory';
+  setActiveTab: (tab: 'feed' | 'assistant' | 'vault' | 'directory') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const { user, isAnonymous, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 py-3 font-['Manrope']">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
-        {/* Brand Logo */}
-        <div className="flex items-center space-x-2.5 cursor-pointer" onClick={() => setActiveTab('assistant')}>
-          <div className="w-9 h-9 rounded-lg bg-[#F3EEFF] border border-[#DDD3FF] text-[#7c6af2] flex items-center justify-center shadow-sm">
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" aria-hidden="true">
-              <path
-                d="M12 3L18 5.5V11.5C18 15.2 15.3 18.3 12 20C8.7 18.3 6 15.2 6 11.5V5.5L12 3Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9.3 11.8L11.1 13.6L14.9 9.8"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
+        <div className="cursor-pointer" onClick={() => setActiveTab('feed')}>
           <div>
-            <span className="text-lg font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
+            <span className="text-xl font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
               Antara
             </span>
-            <span className="text-[10px] text-gray-500 font-['Manrope'] font-semibold">
-              AI Safety Engine
+            <span className="text-[10px] text-gray-500 font-semibold">
+              Women's Safety & AI Guidance
             </span>
           </div>
         </div>
@@ -46,38 +29,50 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         {/* Navigation Tabs */}
         <nav className="hidden md:flex items-center space-x-1 bg-[#FAFAFC] p-1.5 rounded-2xl border border-gray-200/80">
           <button
-            onClick={() => setActiveTab('assistant')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold font-['Manrope'] transition-all ${
-              activeTab === 'assistant'
-                ? 'bg-[#7c6af2] text-white shadow-sm'
+            onClick={() => setActiveTab('feed')}
+            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'feed'
+                ? 'bg-[#7c6af2] text-white shadow-xs'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
-            <Sparkles size={16} />
+            <LayoutList size={15} />
+            <span>Community Feed</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('assistant')}
+            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === 'assistant'
+                ? 'bg-[#7c6af2] text-white shadow-xs'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            <Sparkles size={15} />
             <span>AI Assistant</span>
           </button>
 
           <button
             onClick={() => setActiveTab('vault')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold font-['Manrope'] transition-all ${
+            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'vault'
-                ? 'bg-[#7c6af2] text-white shadow-sm'
+                ? 'bg-[#7c6af2] text-white shadow-xs'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
-            <FolderLock size={16} />
+            <FolderLock size={15} />
             <span>Evidence Vault</span>
           </button>
 
           <button
             onClick={() => setActiveTab('directory')}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold font-['Manrope'] transition-all ${
+            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === 'directory'
-                ? 'bg-[#7c6af2] text-white shadow-sm'
+                ? 'bg-[#7c6af2] text-white shadow-xs'
                 : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
-            <Users size={16} />
+            <Users size={15} />
             <span>Support Directory</span>
           </button>
         </nav>
@@ -86,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         <div className="flex items-center space-x-3">
           {isAnonymous ? (
             <div className="flex items-center space-x-2 bg-[#DCD4FF]/60 border border-[#7c6af2]/30 px-3 py-1.5 rounded-full">
-              <EyeOff size={15} className="text-[#7c6af2]" />
+              <EyeOff size={14} className="text-[#7c6af2]" />
               <span className="text-xs font-bold text-gray-800 font-['Sora']">
                 Anonymous Mode
               </span>
@@ -94,8 +89,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             </div>
           ) : (
             <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-full">
-              <UserIcon size={15} className="text-gray-600" />
-              <span className="text-xs font-bold text-gray-700 font-['Manrope']">
+              <UserIcon size={14} className="text-gray-600" />
+              <span className="text-xs font-bold text-gray-700">
                 {user?.name}
               </span>
             </div>
@@ -106,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             title="Logout"
             className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition"
           >
-            <LogOut size={18} />
+            <LogOut size={16} />
           </button>
         </div>
 

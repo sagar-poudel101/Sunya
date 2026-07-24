@@ -1,8 +1,8 @@
 // src/pages/AssistantPage.tsx
 import React, { useState } from 'react';
-import { mockAnalysisResult } from '../services/mockData';
+import { mockAnalysisResult } from '../services/mockFeedData';
 import type { SituationAnalysis } from '../types/triage';
-import  { Sparkles, AlertTriangle, CheckCircle2, ShieldCheck, ArrowRight, FileText, Lock, Users, RefreshCw } from 'lucide-react';
+import  { Sparkles, AlertTriangle, ShieldCheck, ArrowRight, FileText, Lock, Users, RefreshCw } from 'lucide-react';
 
 type AssistantPageProps = { 
   onNavigateToDraft?: () => void;

@@ -5,7 +5,7 @@ import { Lock } from 'lucide-react';
 import AntaraLogo from '../assets/Antara.svg';
 
 export const LoginPage: React.FC = () => {
-  const { login, loginAsAnonymous } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showBlankPage, setShowBlankPage] = useState(false);
