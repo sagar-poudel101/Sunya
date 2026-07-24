@@ -1,14 +1,14 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { Navbar } from './components/common_com/Navbar';
 import { FeedPage } from './pages/FeedPage';
 import { AssistantPage } from './pages/AssistantPage';
+import { DraftPage } from './pages/DraftPage'; // Import
 
 const DashboardContent: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'vault' | 'directory'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'draft' | 'vault' | 'directory'>('feed');
 
   if (!user) {
     return <LoginPage />;
@@ -16,7 +16,7 @@ const DashboardContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC]">
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Navbar activeTab={activeTab === 'draft' ? 'assistant' : activeTab} setActiveTab={(tab) => setActiveTab(tab)} />
       
       <main className="pb-16">
         {activeTab === 'feed' && (
@@ -25,10 +25,14 @@ const DashboardContent: React.FC = () => {
 
         {activeTab === 'assistant' && (
           <AssistantPage
-            onNavigateToDraft={() => alert('Heading to Complaint Draft Generator!')}
+            onNavigateToDraft={() => setActiveTab('draft')}
             onNavigateToVault={() => setActiveTab('vault')}
             onNavigateToDirectory={() => setActiveTab('directory')}
           />
+        )}
+
+        {activeTab === 'draft' && (
+          <DraftPage onBackToAssistant={() => setActiveTab('assistant')} />
         )}
 
         {activeTab === 'vault' && (

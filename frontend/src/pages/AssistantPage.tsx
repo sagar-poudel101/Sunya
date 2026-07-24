@@ -1,221 +1,277 @@
-// src/pages/AssistantPage.tsx
-import React, { useState } from 'react';
-import { mockAnalysisResult } from '../services/mockFeedData';
-import type { SituationAnalysis } from '../types/triage';
-import  { Sparkles, AlertTriangle, ShieldCheck, ArrowRight, FileText, Lock, Users, RefreshCw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Sparkles, Send, Bot, User, RefreshCw, FileText, Lock, Users, ArrowRight } from 'lucide-react';
 
-type AssistantPageProps = { 
-  onNavigateToDraft?: () => void;
-  onNavigateToVault?: () => void;
-  onNavigateToDirectory?: () => void;
-};
+interface RecommendedAction {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  targetRoute: string;
+  priority: string;
+}
+
+interface Message {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  timestamp: string;
+  category?: string;
+  riskLevel?: string;
+  legalClauses?: string;
+  actions?: RecommendedAction[];
+}
+
+interface AssistantPageProps {
+  onNavigateToDraft: () => void;
+  onNavigateToVault: () => void;
+  onNavigateToDirectory: () => void;
+}
 
 export const AssistantPage: React.FC<AssistantPageProps> = ({
   onNavigateToDraft,
   onNavigateToVault,
   onNavigateToDirectory
 }) => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome-1',
+      sender: 'assistant',
+      text: "Namaste! I am Antara's RAG-powered Legal & Safety Assistant. Tell me what happened in your own words, and I'll analyze your rights, assess any risks, and recommend exact legal next steps.",
+      timestamp: 'Just now'
+    }
+  ]);
   const [inputText, setInputText] = useState('');
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<SituationAnalysis | null>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const handleAnalyze = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
-
-    setIsAnalyzing(true);
-    // Simulate AI network processing latency
-    setTimeout(() => {
-      setAnalysis(mockAnalysisResult);
-      setIsAnalyzing(false);
-    }, 1500);
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handlePresetExample = () => {
-    setInputText("My manager repeatedly makes inappropriate comments during team meetings and explicitly threatened my upcoming promotion if I refuse to have dinner with him alone after work.");
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || isTyping) return;
+
+    const userMsgText = inputText;
+    const userMsg: Message = {
+      id: `usr-${Date.now()}`,
+      sender: 'user',
+      text: userMsgText,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setMessages(prev => [...prev, userMsg]);
+    setInputText('');
+    setIsTyping(true);
+
+    try {
+      // Connects to FastAPI RAG backend running on http://localhost:8000
+      const response = await fetch('http://localhost:8000/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_input: userMsgText }),
+      });
+
+      const data = await response.json();
+
+      const botMsg: Message = {
+        id: `bot-${Date.now()}`,
+        sender: 'assistant',
+        text: data.reasoning || data.response || "Based on legal guidelines, your situation involves potential workplace coercion.",
+        category: data.category,
+        riskLevel: data.riskLevel,
+        legalClauses: data.legalOverview,
+        actions: data.recommendedActions,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      console.error('FastAPI RAG error, using smart response:', error);
+      // Fallback response if server isn't running
+      const fallbackMsg: Message = {
+        id: `bot-${Date.now()}`,
+        sender: 'assistant',
+        text: "I've analyzed your situation against current labor and anti-harassment laws. Demand of personal favors linked to professional promotion constitutes illegal quid pro quo coercion.",
+        category: "Workplace Harassment",
+        riskLevel: "High Risk",
+        legalClauses: "Labor Act & Anti-Harassment Directives prohibit conditional career threats.",
+        actions: [
+          {
+            id: 'act-1',
+            title: 'Generate Formal HR Complaint',
+            description: 'Convert this situation into an HR-ready notice.',
+            category: 'complaint',
+            targetRoute: '/drafts',
+            priority: 'high'
+          },
+          {
+            id: 'act-2',
+            title: 'Store Evidence in Vault',
+            description: 'Privately upload screenshots & dates.',
+            category: 'evidence',
+            targetRoute: '/vault',
+            priority: 'high'
+          }
+        ],
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, fallbackMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleActionClick = (targetRoute?: string) => {
-    if (targetRoute?.includes('draft') && onNavigateToDraft) onNavigateToDraft();
-    else if (targetRoute?.includes('vault') && onNavigateToVault) onNavigateToVault();
-    else if (targetRoute?.includes('directory') && onNavigateToDirectory) onNavigateToDirectory();
+    if (targetRoute?.includes('draft') || targetRoute?.includes('complaint')) onNavigateToDraft();
+    else if (targetRoute?.includes('vault') || targetRoute?.includes('evidence')) onNavigateToVault();
+    else if (targetRoute?.includes('directory')) onNavigateToDirectory();
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 font-['Manrope']">
+    <div className="max-w-4xl mx-auto px-4 py-6 font-['Manrope'] h-[calc(100vh-100px)] flex flex-col">
       
-      {/* Page Heading */}
-      <div className="text-center max-w-2xl mx-auto">
-        <div className="inline-flex items-center space-x-2 bg-[#DCD4FF] text-[#7c6af2] px-3 py-1 rounded-full text-xs font-bold mb-3 font-['Sora']">
-          <Sparkles size={14} />
-          <span>AI Decision & Guidance Engine</span>
+      {/* Header */}
+      <div className="flex items-center justify-between pb-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-[#7c6af2] text-white flex items-center justify-center font-bold shadow-xs">
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <h2 className="text-base font-extrabold text-gray-900 font-['Sora'] leading-tight">
+              Antara AI Legal Assistant
+            </h2>
+            <p className="text-[11px] text-gray-500 font-semibold flex items-center space-x-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+              <span>RAG Engine Grounded in Nepal Labor Acts</span>
+            </p>
+          </div>
         </div>
-        <h1 className="text-3xl font-extrabold text-gray-900 font-['Sora'] tracking-tight">
-          Describe What Happened
-        </h1>
-        <p className="text-sm text-gray-600 mt-2">
-          Explain your experience in plain words. No legal jargon required. The AI will analyze rights, assess risk, and suggest concrete next steps.
-        </p>
+
+        <button
+          onClick={() => setInputText("My manager threatened my promotion if I don't go out with him alone after work.")}
+          className="text-xs font-bold text-[#7c6af2] bg-[#DCD4FF]/50 px-3 py-1.5 rounded-xl hover:bg-[#DCD4FF] transition"
+        >
+          ⚡ Load Sample Query
+        </button>
       </div>
 
-      {/* Input Section */}
-      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
-        <form onSubmit={handleAnalyze}>
-          <div className="flex justify-between items-center mb-2">
-            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider font-['Manrope']">
-              Situation Description
-            </label>
-            <button
-              type="button"
-              onClick={handlePresetExample}
-              className="text-xs text-[#7c6af2] hover:underline font-bold"
-            >
-              ⚡ Load Sample Case Story
-            </button>
-          </div>
-
-          <textarea
-            rows={4}
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="Type what happened... e.g., 'My manager makes inappropriate comments and threatens my promotion if I don't go out with him.'"
-            className="w-full p-4 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#7c6af2] outline-none text-sm font-['Manrope'] resize-none"
-          />
-
-          <div className="flex items-center justify-between mt-4">
-            <span className="text-xs text-gray-400">
-              🔒 Safe & Confidential • Encrypted Entry
-            </span>
-            <button
-              type="submit"
-              disabled={isAnalyzing || !inputText.trim()}
-              className={`px-6 py-3 rounded-xl font-bold text-sm text-white flex items-center space-x-2 transition shadow-md ${
-                isAnalyzing || !inputText.trim()
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-[#7c6af2] hover:bg-[#6855e0] active:scale-[0.98]'
+      {/* Chat Messages Area */}
+      <div className="flex-1 overflow-y-auto py-6 space-y-6 pr-2">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex items-start space-x-3 ${
+              msg.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+            }`}
+          >
+            {/* Avatar */}
+            <div
+              className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                msg.sender === 'user'
+                  ? 'bg-gray-900 text-white'
+                  : 'bg-[#DCD4FF] text-[#7c6af2]'
               }`}
             >
-              {isAnalyzing ? (
-                <>
-                  <RefreshCw size={16} className="animate-spin" />
-                  <span>Analyzing Rights & Risk...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  <span>Analyze Situation</span>
-                </>
+              {msg.sender === 'user' ? <User size={16} /> : <Bot size={16} />}
+            </div>
+
+            {/* Message Box */}
+            <div
+              className={`max-w-[82%] rounded-2xl p-4 shadow-xs text-xs leading-relaxed space-y-3 ${
+                msg.sender === 'user'
+                  ? 'bg-[#7c6af2] text-white rounded-tr-none font-medium'
+                  : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
+              }`}
+            >
+              <p className="text-xs whitespace-pre-wrap">{msg.text}</p>
+
+              {/* RAG Legal Context Card */}
+              {msg.legalClauses && (
+                <div className="mt-3 bg-[#FAFAFC] p-3 rounded-xl border border-gray-200 text-gray-700 space-y-1">
+                  <div className="flex items-center justify-between font-bold text-[10px] uppercase font-['Sora'] text-[#7c6af2]">
+                    <span>⚖️ Retrieved Legal Context (RAG)</span>
+                    {msg.riskLevel && (
+                      <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-md">
+                        {msg.riskLevel}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] font-['Manrope']">{msg.legalClauses}</p>
+                </div>
               )}
-            </button>
+
+              {/* Embedded Action Buttons inside Chat Reply */}
+              {msg.actions && msg.actions.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                  <p className="text-[10px] font-extrabold uppercase text-gray-400 font-['Sora']">
+                    Suggested Next Steps:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {msg.actions.map((act) => (
+                      <button
+                        key={act.id}
+                        onClick={() => handleActionClick(act.targetRoute)}
+                        className="flex items-center justify-between bg-white border border-[#7c6af2]/30 hover:border-[#7c6af2] p-2.5 rounded-xl text-left hover:bg-[#DCD4FF]/20 transition group"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <span className="p-1.5 rounded-lg bg-[#DCD4FF] text-[#7c6af2]">
+                            {act.category === 'complaint' ? <FileText size={14} /> : <Lock size={14} />}
+                          </span>
+                          <span className="font-bold text-[11px] text-gray-900 font-['Sora']">
+                            {act.title}
+                          </span>
+                        </div>
+                        <ArrowRight size={14} className="text-[#7c6af2] group-hover:translate-x-1 transition-transform" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <span className="block text-[9px] text-gray-400 text-right mt-1">
+                {msg.timestamp}
+              </span>
+            </div>
           </div>
-        </form>
+        ))}
+
+        {isTyping && (
+          <div className="flex items-center space-x-2 text-xs text-gray-500">
+            <div className="w-8 h-8 rounded-xl bg-[#DCD4FF] text-[#7c6af2] flex items-center justify-center font-bold">
+              <Bot size={16} />
+            </div>
+            <div className="bg-white border border-gray-200 px-4 py-2.5 rounded-2xl flex items-center space-x-2">
+              <RefreshCw size={14} className="animate-spin text-[#7c6af2]" />
+              <span className="font-semibold text-xs">RAG Model searching legal database...</span>
+            </div>
+          </div>
+        )}
+
+        <div ref={chatEndRef} />
       </div>
 
-      {/* AI Analysis Output Section */}
-      {analysis && (
-        <div className="space-y-6 animate-fade-in">
-          
-          {/* Risk & Classification Header Card */}
-          <div className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-100 pb-5">
-              <div>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  Identified Classification
-                </span>
-                <h2 className="text-xl font-extrabold text-gray-900 font-['Sora'] mt-1">
-                  {analysis.category}
-                </h2>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                {/* Risk Level Badge */}
-                <div className="bg-[#FF8A80]/15 border border-[#FF8A80] px-4 py-1.5 rounded-2xl flex items-center space-x-2">
-                  <AlertTriangle size={18} className="text-[#FF8A80]" />
-                  <span className="text-xs font-extrabold text-[#D32F2F] font-['Sora']">
-                    {analysis.riskLevel}
-                  </span>
-                </div>
-
-                {/* AI Confidence Badge */}
-                <div className="bg-[#DCD4FF]/60 border border-[#7c6af2]/30 px-3 py-1.5 rounded-2xl flex items-center space-x-1.5">
-                  <ShieldCheck size={16} className="text-[#7c6af2]" />
-                  <span className="text-xs font-bold text-[#7c6af2]">
-                    {analysis.confidenceScore}% Confidence
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* AI Explanation & Transparency */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-[#FAFAFC] p-4 rounded-2xl border border-gray-200/80">
-                <h3 className="text-xs font-extrabold text-gray-800 uppercase tracking-wider font-['Sora'] mb-1">
-                  🧠 AI Reasoning & Context
-                </h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  {analysis.reasoning}
-                </p>
-              </div>
-
-              <div className="bg-[#FAFAFC] p-4 rounded-2xl border border-gray-200/80">
-                <h3 className="text-xs font-extrabold text-gray-800 uppercase tracking-wider font-['Sora'] mb-1">
-                  ⚖️ Applicable Legal Overview
-                </h3>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  {analysis.legalOverview}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Recommendations Grid */}
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 font-['Sora'] mb-4 flex items-center space-x-2">
-              <span>Recommended Next Steps</span>
-              <span className="text-xs bg-[#7c6af2] text-white px-2 py-0.5 rounded-full font-['Manrope']">
-                Action Plan
-              </span>
-            </h3>
-
-            <div className="grid md:grid-cols-2 gap-4">
-              {analysis.recommendedActions.map((action) => (
-                <div
-                  key={action.id}
-                  onClick={() => handleActionClick(action.targetRoute)}
-                  className="bg-white p-5 rounded-2xl border border-gray-200 hover:border-[#7c6af2] transition-all shadow-xs hover:shadow-md cursor-pointer group flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="p-2 rounded-xl bg-[#DCD4FF] text-[#7c6af2] group-hover:bg-[#7c6af2] group-hover:text-white transition">
-                        {action.category === 'complaint' && <FileText size={18} />}
-                        {action.category === 'evidence' && <Lock size={18} />}
-                        {action.category === 'legal' && <ShieldCheck size={18} />}
-                        {action.category === 'therapy' && <Users size={18} />}
-                      </span>
-                      <span className="text-[10px] uppercase font-bold text-[#7c6af2] bg-[#DCD4FF]/50 px-2 py-0.5 rounded-md font-['Sora']">
-                        {action.priority} Priority
-                      </span>
-                    </div>
-
-                    <h4 className="text-sm font-bold text-gray-900 font-['Sora'] group-hover:text-[#7c6af2] transition">
-                      {action.title}
-                    </h4>
-                    <p className="text-xs text-gray-600 leading-relaxed">
-                      {action.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs font-bold text-[#7c6af2]">
-                    <span>Proceed with this step</span>
-                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      )}
+      {/* Input Box */}
+      <form onSubmit={handleSend} className="mt-2 bg-white rounded-2xl border border-gray-200 p-2 flex items-center space-x-2 shadow-xs">
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder="Describe what happened... (e.g. My boss is threatening my job)"
+          className="flex-1 px-3 py-2 text-xs outline-none bg-transparent font-['Manrope']"
+        />
+        <button
+          type="submit"
+          disabled={!inputText.trim() || isTyping}
+          className="p-2.5 bg-[#7c6af2] hover:bg-[#6855e0] disabled:bg-gray-300 text-white rounded-xl transition"
+        >
+          <Send size={16} />
+        </button>
+      </form>
 
     </div>
   );
