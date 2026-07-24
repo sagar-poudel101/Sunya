@@ -25,7 +25,6 @@ class BM25Retriever:
         self.initialize()
 
     def tokenize(self, text: str) -> List[str]:
-        # Simple lowercase tokenization of words
         return re.findall(r'\b\w+\b', text.lower())
 
     def initialize(self):
@@ -41,20 +40,17 @@ class BM25Retriever:
             self.doc_len.append(len(tokens))
             total_len += len(tokens)
 
-            # Count term frequencies
             frequencies = {}
             for token in tokens:
                 frequencies[token] = frequencies.get(token, 0) + 1
             self.doc_freqs.append(frequencies)
 
-            # Unique terms in doc to calculate DF
             unique_tokens = set(tokens)
             for token in unique_tokens:
                 df[token] = df.get(token, 0) + 1
 
         self.avg_doc_len = total_len / ndocs
 
-        # Calculate IDF
         for term, freq in df.items():
             self.idf[term] = math.log((ndocs - freq + 0.5) / (freq + 0.5) + 1.0)
 
@@ -79,12 +75,9 @@ class BM25Retriever:
 
             scores.append((score, self.chunks[i]))
 
-        # Sort descending
         scores.sort(key=lambda x: x[0], reverse=True)
-        # Fallback: if no scores > 0, return top matching anyway to be robust, or return empty
         results = [doc for score, doc in scores if score > 0.0]
         
-        # If query is completely un-matched but we want fallback, return first few docs
         if not results:
             results = [doc for score, doc in scores[:top_k]]
             
@@ -109,7 +102,6 @@ class DocumentIndex:
         self.initialized = True
 
     def load_or_build_index(self):
-        # Create data directory if it doesn't exist
         os.makedirs(DATA_DIR, exist_ok=True)
         
         if CACHE_FILE.exists():
@@ -133,7 +125,6 @@ class DocumentIndex:
         splitter = TextSplitter()
         self.chunks = splitter.split_documents(documents)
         
-        # Save cache
         try:
             with open(CACHE_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.chunks, f, ensure_ascii=False, indent=2)
