@@ -12,10 +12,22 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const { user, isAnonymous, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 py-3 font-['Manrope']">
+    <>
+      <style>{`
+        @keyframes brandBounce {
+          0%, 100% { transform: translateY(0) scale(1); }
+          30% { transform: translateY(-5px) scale(1.03); }
+          60% { transform: translateY(2px) scale(0.98); }
+        }
+      `}</style>
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 lg:px-8 py-3 font-['Manrope']">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         
-        <div className="cursor-pointer" onClick={() => setActiveTab('feed')}>
+        <div
+          className="cursor-pointer"
+          onClick={() => setActiveTab('feed')}
+          style={{ animation: 'brandBounce 2.8s ease-in-out infinite' }}
+        >
           <div>
             <span className="text-xl font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
               Antara
@@ -106,6 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         </div>
 
       </div>
-    </header>
+      </header>
+    </>
   );
 };
