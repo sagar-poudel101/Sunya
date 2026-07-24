@@ -1,7 +1,9 @@
 # app/main.py
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(project_root))
+sys.path.append(str(project_root / "rag"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
