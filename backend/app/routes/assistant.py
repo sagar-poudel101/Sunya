@@ -146,6 +146,18 @@ def analyze_workplace_incident(payload: AnalysisRequest):
                 }
             ]
             
+        # Refusal check: If model refused to answer or retrieval was below threshold, clear riskLevel
+        is_refusal = (
+            not result.answered or 
+            "i can't answer" in result.text.lower() or 
+            "no information" in result.text.lower() or
+            "cannot answer" in result.text.lower() or
+            "unrelated" in result.text.lower()
+        )
+        if is_refusal:
+            risk_level = None
+            category = "General Inquiry"
+
         return {
             "reasoning": result.text,
             "category": category,

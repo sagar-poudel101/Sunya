@@ -143,11 +143,11 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({
           </div>
           <div>
             <h2 className="text-base font-extrabold text-gray-900 font-['Sora'] leading-tight">
-              Antara AI Legal Assistant
+              Antara AI Legal & Coaching Assistant
             </h2>
             <p className="text-[11px] text-gray-500 font-semibold flex items-center space-x-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-              <span>RAG Engine Grounded in Nepal Labor Acts</span>
+              <span>RAG Engine Grounded in Nepal Labor Acts & Career Guides</span>
             </p>
           </div>
         </div>
