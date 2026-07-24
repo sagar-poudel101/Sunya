@@ -12,7 +12,9 @@ CAREER_KEYWORDS = [
     "scope", "salary", "raise", "review", "interrupted", 
     "manager", "boss", "promotion", "credit", "career", "carrier",
     "coaching", "creep", "leadership", "negotiate", 
-    "negotiation", "talked over", "spoke over", "meeting"
+    "negotiation", "talked over", "spoke over", "meeting",
+    "job", "jobs", "find", "goals", "goal", "hiring", "interview",
+    "resume", "cv", "employment", "mentor", "mentorship", "work"
 ]
 
 @router.post("")
