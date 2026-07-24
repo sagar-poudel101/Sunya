@@ -2,7 +2,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-# Auth Schemas
 class UserRegister(BaseModel):
     name: str
     email: EmailStr
@@ -16,7 +15,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-# Triage Schemas
 class IncidentCreate(BaseModel):
     raw_text: Optional[str] = None
     incident_date_time: Optional[str] = None

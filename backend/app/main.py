@@ -4,12 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
 from app.routes import auth
 
-# Initialize DB Tables
+# Create SQLite tables on startup
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Antara Backend API")
 
-# Enable CORS for React Frontend (running on port 5173)
+# Allow Vite frontend (port 5173) to communicate with FastAPI
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
