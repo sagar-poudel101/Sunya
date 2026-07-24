@@ -26,7 +26,8 @@ def analyze_workplace_incident(payload: AnalysisRequest):
         "sexual", "law", "act", "section", "article", "court", "punish", 
         "punishment", "legal", "illegal", "statute", "constitution", 
         "crime", "criminal", "police", "jail", "fine", "imprisonment", 
-        "labor act", "labour act", "violation", "violate", "sue", "complaint"
+        "labor act", "labour act", "violation", "violate", "sue", "complaint",
+        "beat", "beating", "violence", "assault", "battery", "domestic", "physical", "hit"
     ]
     
     # 1. LEGAL ROUTE: Trigger legal statutes only when legal keywords exist
