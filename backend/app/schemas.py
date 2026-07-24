@@ -28,3 +28,21 @@ class WhistleblowCreate(BaseModel):
     authority_target: str
     whistleblow_message: str
     is_anonymous: bool = True
+
+# ➕ NEW DIRECTORY RESPONSE SCHEMA
+class SupportSpecialistResponse(BaseModel):
+    id: int
+    name: str
+    specialty: str
+    title: str
+    organization: str
+    experience_years: int
+    location: str
+    contact_phone: str
+    contact_email: str
+    rating: str
+    bio: str
+    is_verified: bool
+
+    class Config:
+        from_attributes = True

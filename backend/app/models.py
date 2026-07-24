@@ -37,3 +37,20 @@ class WhistleblowerReport(Base):
     report_details = Column(Text, nullable=False)
     is_anonymous = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+# ➕ NEW TABLE FOR DIRECTORY
+class SupportSpecialist(Base):
+    __tablename__ = "support_specialists"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    specialty = Column(String, nullable=False)  # 'psychiatric' or 'lawyer'
+    title = Column(String, nullable=False)
+    organization = Column(String, nullable=False)
+    experience_years = Column(Integer, nullable=False)
+    location = Column(String, nullable=False)
+    contact_phone = Column(String, nullable=False)
+    contact_email = Column(String, nullable=False)
+    rating = Column(String, default="4.9")
+    bio = Column(Text, nullable=False)
+    is_verified = Column(Boolean, default=True)

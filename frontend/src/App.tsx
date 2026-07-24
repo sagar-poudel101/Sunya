@@ -7,6 +7,7 @@ import { FeedPage } from './pages/FeedPage';
 import { AssistantPage } from './pages/AssistantPage';
 import { DraftPage } from './pages/DraftPage';
 import { TriagePage } from './pages/TriagePage';
+import { DirectoryPage } from './pages/DirectoryPage';
 
 const DashboardContent: React.FC = () => {
   // Navigation State
@@ -66,14 +67,7 @@ const DashboardContent: React.FC = () => {
 
         {/* Verified Support Directory */}
         {activeTab === 'directory' && (
-          <div className="max-w-4xl mx-auto mt-12 p-8 bg-white rounded-3xl border border-gray-200 text-center font-['Manrope']">
-            <h2 className="text-2xl font-bold font-['Sora'] font-extrabold text-gray-900">
-              ⚖️ Verified Lawyers & Counselors Directory
-            </h2>
-            <p className="text-xs text-gray-500 mt-2 font-semibold">
-              Connect with certified legal experts and emergency rights advocates.
-            </p>
-          </div>
+          <DirectoryPage />
         )}
       </main>
     </div>

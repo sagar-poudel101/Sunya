@@ -3,6 +3,7 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn } from 'lucide-react';
 import AntaraLogo from '../../assets/Antara.svg';
+import AntaraBrandLogo from '../../assets/ANTARA_logo.svg';
 
 interface NavbarProps {
   activeTab: 'feed' | 'assistant' | 'directory';
@@ -33,9 +34,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenL
           >
             <img src={AntaraLogo} alt="Antara Logo" className="w-7 h-7 object-contain" />
             <div>
-              <span className="text-xl font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
-                Antara
-              </span>
+              <img 
+                src={AntaraBrandLogo} 
+                alt="Antara" 
+                className="h-[15px] w-auto object-contain block mb-0.5" 
+              />
               <span className="text-[10px] text-gray-500 font-semibold">
                 Women's Safety & Legal Triage
               </span>

@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { UserCheck, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import AntaraLogo from '../assets/Antara.svg';
+import AntaraIcon from '../assets/Antara.svg';
+import AntaraLogo from '../assets/ANTARA_logo.svg';
 
 interface LoginPageProps {
   onBackToApp?: () => void;
@@ -105,30 +106,39 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
     <div className="min-h-screen bg-[#FAFAFC] flex items-center justify-center p-4 font-['Manrope']">
       <div className="max-w-md w-full bg-white rounded-3xl border border-gray-200 p-8 shadow-xs space-y-6 relative">
         
-        {onBackToApp && (
-          <button
-            onClick={onBackToApp}
-            className="flex items-center space-x-1 text-xs font-bold text-gray-500 hover:text-gray-900 transition mb-2"
-          >
-            <ArrowLeft size={14} />
-            <span>Back to Home</span>
-          </button>
-        )}
 
         {/* Header with SVG Logo */}
         <div className="text-center space-y-2">
           <div className="relative w-14 h-14 mx-auto flex items-center justify-center">
             <img 
-              src={AntaraLogo}
-              alt="Antara Logo" 
+              src={AntaraIcon}
+              alt="Antara Icon" 
               className="w-full h-full object-contain animate-bounce"
             />
             <div aria-hidden="true" className="absolute -bottom-1 h-1.5 w-8 rounded-full bg-[#6E60A8]/30 blur-xs" />
           </div>
 
-          <h1 className="text-2xl font-extrabold text-gray-900 font-['Sora'] pt-2">
-            {isRegistering ? 'Create Antara Account' : 'Welcome to Antara'}
-          </h1>
+          {isRegistering ? (
+            <h1 className="text-2xl font-extrabold text-gray-900 font-['Sora'] pt-2">
+              Create Antara Account
+            </h1>
+          ) : (
+            <div className="space-y-2 pt-2">
+              <h1 className="text-xl font-bold text-gray-500 uppercase tracking-widest font-['Sora']">
+                Welcome to
+              </h1>
+              <div className="relative w-48 h-12 mx-auto flex items-center justify-center">
+                <img 
+                  src={AntaraLogo}
+                  alt="Antara Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <p className="text-[10px] text-[#7c6af2] font-extrabold tracking-wider uppercase pt-0.5">
+                Women's Safety & Legal Triage
+              </p>
+            </div>
+          )}
           <p className="text-xs text-gray-500">
             {isRegistering
               ? 'Enter your profile details to register.'
