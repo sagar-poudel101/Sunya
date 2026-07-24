@@ -194,7 +194,11 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({
               {msg.legalClauses && (
                 <div className="mt-3 bg-[#FAFAFC] p-3 rounded-xl border border-gray-200 text-gray-700 space-y-1">
                   <div className="flex items-center justify-between font-bold text-[10px] uppercase font-['Sora'] text-[#7c6af2]">
-                    <span>⚖️ Retrieved Legal Context (RAG)</span>
+                    <span>
+                      {msg.category === 'Career & Leadership'
+                        ? '💼 Grounded Career Context'
+                        : '⚖️ Retrieved Legal Context (RAG)'}
+                    </span>
                     {msg.riskLevel && (
                       <span className="bg-red-100 text-red-600 px-2 py-0.5 rounded-md">
                         {msg.riskLevel}
