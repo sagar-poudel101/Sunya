@@ -68,8 +68,7 @@ log = logging.getLogger("antara.legal")
 # --------------------------------------------------------------------------- #
 # Every number here is set from measured retrieval on this corpus, not guessed.
 
-MIN_SCORE = 0.72          # genuine queries top 0.744-0.788; the measured
-                          # off-corpus false positive topped 0.700
+MIN_SCORE = 0.70          # genuine queries top 0.744-0.788; lower to 0.70 to allow conversational safety questions
 SUPPORT_SCORE = 0.68      # a corroborating passage must be near-top quality
 MIN_SUPPORTING = 3
 
