@@ -329,6 +329,27 @@ Output JSON:
   ],
   "evidence": ""
 }
+
+Here is another few-shot example:
+Input Scenario: Custom
+Input Tone: assertive
+Her situation, in her words: "tell me about career option as being girl"
+
+Output JSON:
+{
+  "script": [
+    "I am looking to build a career path in high-growth fields like technology, finance, or business administration, where leadership opportunities are expanding.",
+    "According to research on women in leadership, diverse teams achieve 19% higher innovation revenues, yet women remain underrepresented in executive roles.",
+    "I am seeking mentorship on mapping my current skills to these fields and setting milestones to enter a management track."
+  ],
+  "framework": "STAR",
+  "breakdown": [
+    {"step": "Situation", "rationale": "Frames the inquiry around high-growth, high-opportunity industries rather than general, unguided options."},
+    {"step": "Task/Action", "rationale": "Cites a concrete industry statistic on diversity benefits to back the value of promoting and hiring women."},
+    {"step": "Result", "rationale": "Sets a clear next step (mentorship and milestones) to progress on a management track."}
+  ],
+  "evidence": "According to research on women in leadership, diverse teams achieve 19% higher innovation revenues."
+}
 """
 
 CAREER_USER = """\
