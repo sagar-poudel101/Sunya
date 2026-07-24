@@ -10,13 +10,21 @@ import { TriagePage } from './pages/TriagePage';
 
 const DashboardContent: React.FC = () => {
   const { user } = useAuth();
+  
+  // Navigation State
   const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'directory' | 'triage' | 'draft'>('feed');
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Compute active navbar tab
+  // Keep Navbar highlighted on 'assistant' when inside sub-routes like draft or triage
   const navTab = (activeTab === 'draft' || activeTab === 'triage') ? 'assistant' : activeTab;
 
-  if (!user) {
-    return <LoginPage />;
+  // Render Login Page when requested or if user clicks Sign In
+  if (showLoginModal) {
+    return (
+      <LoginPage 
+        onBackToApp={() => setShowLoginModal(false)} 
+      />
+    );
   }
 
   return (
@@ -24,18 +32,19 @@ const DashboardContent: React.FC = () => {
       <Navbar 
         activeTab={navTab} 
         setActiveTab={(tab) => setActiveTab(tab)} 
+        onOpenLogin={() => setShowLoginModal(true)}
       />
       
       <main className="pb-16">
-        {/* Landing / Community Feed Page */}
+        {/* Landing Page (Community Feed + 1-Click Triage Banner) */}
         {activeTab === 'feed' && (
           <FeedPage 
             onNavigateToAssistant={() => setActiveTab('assistant')} 
-            onNavigateToTriage={() => setActiveTab('triage')} // 1-Click Trigger
+            onNavigateToTriage={() => setActiveTab('triage')} 
           />
         )}
 
-        {/* AI Assistant Page */}
+        {/* AI Legal Assistant */}
         {activeTab === 'assistant' && (
           <AssistantPage
             onNavigateToDraft={() => setActiveTab('draft')}
@@ -44,23 +53,28 @@ const DashboardContent: React.FC = () => {
           />
         )}
 
-        {/* 1-Click Rendered Triage & Safety Engine */}
+        {/* 4-Step Stealth Triage Engine & Whistleblowing */}
         {activeTab === 'triage' && (
           <TriagePage 
+            onBackToFeed={() => setActiveTab('feed')}
             onNavigateToDraft={() => setActiveTab('draft')} 
           />
         )}
 
-        {/* Complaint Draft Generator */}
+        {/* HR Complaint Generator */}
         {activeTab === 'draft' && (
           <DraftPage onBackToAssistant={() => setActiveTab('assistant')} />
         )}
 
-        {/* Directory Page */}
+        {/* Verified Support Directory */}
         {activeTab === 'directory' && (
           <div className="max-w-4xl mx-auto mt-12 p-8 bg-white rounded-3xl border border-gray-200 text-center font-['Manrope']">
-            <h2 className="text-2xl font-bold font-['Sora'] font-extrabold">⚖️ Verified Support Directory</h2>
-            <p className="text-xs text-gray-500 mt-2 font-semibold">Connect with verified legal counselors and rights advocates.</p>
+            <h2 className="text-2xl font-bold font-['Sora'] font-extrabold text-gray-900">
+              ⚖️ Verified Lawyers & Counselors Directory
+            </h2>
+            <p className="text-xs text-gray-500 mt-2 font-semibold">
+              Connect with certified legal experts and emergency rights advocates.
+            </p>
           </div>
         )}
       </main>

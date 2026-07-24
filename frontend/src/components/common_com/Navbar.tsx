@@ -1,15 +1,17 @@
-// src/components/common/Navbar.tsx
+// src/components/common_com/Navbar.tsx
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { EyeOff, User as UserIcon, LogOut, Sparkles, ShieldCheck, Users, LayoutList } from 'lucide-react';
+import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn } from 'lucide-react';
+import AntaraLogo from '../../assets/Antara.svg';
 
 interface NavbarProps {
-  activeTab: 'feed' | 'assistant' | 'triage' | 'directory';
-  setActiveTab: (tab: 'feed' | 'assistant' | 'triage' | 'directory') => void;
+  activeTab: 'feed' | 'assistant' | 'directory';
+  setActiveTab: (tab: 'feed' | 'assistant' | 'directory') => void;
+  onOpenLogin?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
-  const { user, isAnonymous, logout } = useAuth();
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenLogin }) => {
+  const { user, logout } = useAuth();
 
   return (
     <>
@@ -25,25 +27,26 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           
           {/* Brand Logo */}
           <div
-            className="cursor-pointer"
+            className="cursor-pointer flex items-center space-x-2"
             onClick={() => setActiveTab('feed')}
             style={{ animation: 'brandBounce 2.8s ease-in-out infinite' }}
           >
+            <img src={AntaraLogo} alt="Antara Logo" className="w-7 h-7 object-contain" />
             <div>
               <span className="text-xl font-extrabold text-gray-900 font-['Sora'] tracking-tight block leading-none">
                 Antara
               </span>
               <span className="text-[10px] text-gray-500 font-semibold">
-                Women's Safety & AI Guidance
+                Women's Safety & Legal Triage
               </span>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
+          {/* Clean 3-Item Navigation */}
           <nav className="hidden md:flex items-center space-x-1 bg-[#FAFAFC] p-1.5 rounded-2xl border border-gray-200/80">
             <button
               onClick={() => setActiveTab('feed')}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'feed'
                   ? 'bg-[#7c6af2] text-white shadow-xs'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -55,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
 
             <button
               onClick={() => setActiveTab('assistant')}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'assistant'
                   ? 'bg-[#7c6af2] text-white shadow-xs'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -66,20 +69,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             </button>
 
             <button
-              onClick={() => setActiveTab('triage')}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'triage'
-                  ? 'bg-[#7c6af2] text-white shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <ShieldCheck size={15} />
-              <span>Stealth Triage</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab('directory')}
-              className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'directory'
                   ? 'bg-[#7c6af2] text-white shadow-xs'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
@@ -90,32 +81,33 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
             </button>
           </nav>
 
-          {/* Auth / Anonymous Status Badge */}
+          {/* User Profile / Auth State */}
           <div className="flex items-center space-x-3">
-            {isAnonymous ? (
-              <div className="flex items-center space-x-2 bg-[#DCD4FF]/60 border border-[#7c6af2]/30 px-3 py-1.5 rounded-full">
-                <EyeOff size={14} className="text-[#7c6af2]" />
-                <span className="text-xs font-bold text-gray-800 font-['Sora']">
-                  Anonymous Mode
-                </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
+                  <UserIcon size={14} className="text-[#7c6af2]" />
+                  <span className="text-xs font-bold text-gray-700">
+                    {user.name || 'Member'}
+                  </span>
+                </div>
+                <button
+                  onClick={logout}
+                  title="Logout"
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition"
+                >
+                  <LogOut size={16} />
+                </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-full">
-                <UserIcon size={14} className="text-gray-600" />
-                <span className="text-xs font-bold text-gray-700">
-                  {user?.name || 'User'}
-                </span>
-              </div>
+              <button
+                onClick={onOpenLogin}
+                className="flex items-center space-x-1.5 bg-[#7c6af2] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#6855e0] transition shadow-xs"
+              >
+                <LogIn size={14} />
+                <span>Sign In</span>
+              </button>
             )}
-
-            <button
-              onClick={logout}
-              title="Logout"
-              className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition"
-            >
-              <LogOut size={16} />
-            </button>
           </div>
 
         </div>

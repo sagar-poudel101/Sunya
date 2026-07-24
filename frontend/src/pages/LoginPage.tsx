@@ -1,6 +1,6 @@
 // src/pages/LoginPage.tsx
 import React, { useState } from 'react';
-import { UserCheck, Eye, EyeOff, CheckCircle2, UserX, ArrowLeft } from 'lucide-react';
+import { UserCheck, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AntaraLogo from '../assets/Antara.svg';
 
@@ -9,7 +9,7 @@ interface LoginPageProps {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
-  const { login, continueAsGuest } = useAuth();
+  const { login } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
   
   // Form State
@@ -99,11 +99,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
         if (onBackToApp) onBackToApp();
       }
     }
-  };
-
-  const handleGuestAccess = () => {
-    if (continueAsGuest) continueAsGuest();
-    if (onBackToApp) onBackToApp();
   };
 
   return (
@@ -277,21 +272,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
             {isRegistering ? 'Back to Sign In' : 'Register Account'}
           </button>
         </div>
-
-        <div className="relative border-t border-gray-100 my-2">
-          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-[10px] font-bold text-gray-400 uppercase">
-            OR
-          </span>
-        </div>
-
-        {/* Guest Access */}
-        <button
-          onClick={handleGuestAccess}
-          className="w-full py-2.5 bg-gray-900 text-white text-xs font-bold rounded-xl hover:bg-black transition flex items-center justify-center space-x-2 shadow-xs"
-        >
-          <UserX size={16} />
-          <span>Continue 100% Anonymously</span>
-        </button>
 
       </div>
     </div>
