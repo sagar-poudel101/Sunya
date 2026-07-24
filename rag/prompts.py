@@ -307,7 +307,28 @@ Return valid JSON, nothing else. No markdown fences, no preamble:
 Framework choice: SBI when naming a problem or giving difficult feedback. \
 STAR when making a claim on scope, money, or title.
 
-The breakdown steps must be the named stages of whichever framework you chose.\
+The breakdown steps must be the named stages of whichever framework you chose.
+
+Here is a few-shot example of the input/output pattern:
+Input Scenario: Custom
+Input Tone: assertive
+Her situation, in her words: "as a girl i am good at making food. how can you guide me to earn?"
+
+Output JSON:
+{
+  "script": [
+    "I want to explore starting a commercial food delivery or catering service, focusing on my culinary expertise.",
+    "Over the past year, I have refined my recipes and successfully hosted dinners for groups of up to 15 people.",
+    "I am seeking mentorship on pricing, licensing, and marketing to transition this skill into a profitable venture."
+  ],
+  "framework": "STAR",
+  "breakdown": [
+    {"step": "Situation", "rationale": "States the commercial culinary ambition clearly and professionally, moving away from casual cooking to business language."},
+    {"step": "Task/Action", "rationale": "Provides concrete proof of success (hosting dinners for 15 people) to ground the business proposal in results."},
+    {"step": "Result", "rationale": "Specifies the precise support needed (pricing, licensing, marketing) to make the venture profitable."}
+  ],
+  "evidence": ""
+}
 """
 
 CAREER_USER = """\
