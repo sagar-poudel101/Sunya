@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine, Base
-from app.routes import auth, incidents, whistleblow, assistant
+from app.routes import auth, incidents, whistleblow, assistant, news
 
 # Create SQLite tables on startup
 Base.metadata.create_all(bind=engine)
@@ -26,6 +26,7 @@ app.include_router(auth.router)
 app.include_router(incidents.router)
 app.include_router(whistleblow.router)
 app.include_router(assistant.router)
+app.include_router(news.router)
 
 @app.get("/")
 def root():

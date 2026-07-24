@@ -1,5 +1,5 @@
 // src/pages/FeedPage.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShieldAlert, 
   ArrowRight, 
@@ -21,7 +21,20 @@ interface FeedPageProps {
 export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNavigateToTriage }) => {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [newPost, setNewPost] = useState('');
-  const [posts, setPosts] = useState([
+  interface Post {
+    id: string | number;
+    author: string;
+    role: string;
+    category: string;
+    time: string;
+    content: string;
+    link?: string;
+    likes: number;
+    comments: number;
+    isLiked: boolean;
+  }
+
+  const [posts, setPosts] = useState<Post[]>([
     {
       id: 1,
       author: 'Maya Sharma',
@@ -45,6 +58,28 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNav
       isLiked: false
     }
   ]);
+  const [isLoadingNews, setIsLoadingNews] = useState(false);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      setIsLoadingNews(true);
+      try {
+        const response = await fetch('http://localhost:8000/api/news');
+        const data = await response.json();
+        if (response.ok && data.success && data.posts) {
+          setPosts(prev => {
+            const staticPosts = prev.filter(p => typeof p.id === 'number');
+            return [...staticPosts, ...data.posts];
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load news feed:', err);
+      } finally {
+        setIsLoadingNews(false);
+      }
+    };
+    fetchNews();
+  }, []);
 
   const categories = ['All', 'Workplace Protection', 'Legal Rights', 'Safety Tips', 'Mentorship'];
 
@@ -68,7 +103,7 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNav
     setNewPost('');
   };
 
-  const handleLike = (id: number) => {
+  const handleLike = (id: number | string) => {
     setPosts(posts.map(post => {
       if (post.id === id) {
         return {
@@ -209,9 +244,22 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNav
                 </span>
               </div>
 
-              <p className="text-xs text-gray-700 leading-relaxed">
-                {post.content}
-              </p>
+              <div className="space-y-3">
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  {post.content}
+                </p>
+                {post.link && (
+                  <a 
+                    href={post.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#7c6af2] hover:underline"
+                  >
+                    <span>Read full story on {post.author}</span>
+                    <ArrowRight size={12} className="text-[#7c6af2]" />
+                  </a>
+                )}
+              </div>
 
               <div className="flex items-center space-x-6 pt-2 border-t border-gray-100 text-xs text-gray-500 font-semibold">
                 <button 
