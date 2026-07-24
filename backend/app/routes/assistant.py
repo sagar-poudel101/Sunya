@@ -126,14 +126,14 @@ def analyze_workplace_incident(payload: AnalysisRequest):
         if result.error:
             response_text = f"Coaching mode activated for query: '{payload.user_input}'.\n\nError in generator: {result.error}."
         else:
-            response_text = "Here is a verbal script and guidance you can use:\n\n"
-            response_text += "\n".join(f"> **\"{line}\"**" for line in result.script)
+            response_text = "🗣️ **Here is a verbal script you can use:**\n\n"
+            response_text += "\n\n".join(f"> **\"{line}\"**" for line in result.script)
             
             if result.framework:
-                response_text += f"\n\n### Tactical Framework:\n{result.framework}"
+                response_text += f"\n\n🎯 **Tactical Framework:** `{result.framework}`"
             
             if result.breakdown:
-                response_text += "\n\n### Tactical Breakdown:\n"
+                response_text += "\n\n📝 **Strategic Breakdown:**\n"
                 for step in result.breakdown:
                     label = step.get("step", "Tactic")
                     detail = step.get("rationale", "")
