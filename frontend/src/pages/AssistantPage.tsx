@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Send, Bot, User, RefreshCw, FileText, Lock, Users, ArrowRight } from 'lucide-react';
+import { Sparkles, Send, Bot, User, RefreshCw, FileText, Lock, ArrowRight } from 'lucide-react';
 
 interface RecommendedAction {
   id: string;
