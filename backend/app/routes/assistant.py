@@ -129,8 +129,8 @@ def analyze_workplace_incident(payload: AnalysisRequest):
             if result.breakdown:
                 response_text += "\n\n### Tactical Breakdown:\n"
                 for step in result.breakdown:
-                    label = step.get("label", "Tactic")
-                    detail = step.get("text", "")
+                    label = step.get("step", "Tactic")
+                    detail = step.get("rationale", "")
                     response_text += f"- **{label}**: {detail}\n"
 
         legal_overview = "Retrieved career framework coaching guides."
