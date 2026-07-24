@@ -1,11 +1,19 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from rag.legal_rag import ask
+from rag.career_rag import generate_script
 
 router = APIRouter(prefix="/api/analyze", tags=["assistant"])
 
 class AnalysisRequest(BaseModel):
     user_input: str
+
+CAREER_KEYWORDS = [
+    "scope", "salary", "raise", "review", "interrupted", 
+    "manager", "boss", "promotion", "credit", "career",
+    "coaching", "creep", "leadership", "negotiate", 
+    "negotiation", "talked over", "spoke over", "meeting"
+]
 
 @router.post("")
 def analyze_workplace_incident(payload: AnalysisRequest):
@@ -14,6 +22,75 @@ def analyze_workplace_incident(payload: AnalysisRequest):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User input cannot be empty."
         )
+    
+    lower_query = payload.user_input.lower()
+    
+    # -----------------------------------------------------------------------
+    # INTENT ROUTER: Check if query contains career/coaching keywords
+    # -----------------------------------------------------------------------
+    if any(keyword in lower_query for keyword in CAREER_KEYWORDS):
+        try:
+            # Determine correct scenario
+            scenario = "custom"
+            if any(w in lower_query for w in ["salary", "pay", "raise", "negotiate"]):
+                scenario = "salary-negotiation"
+            elif any(w in lower_query for w in ["interrupt", "talk", "spoke", "meeting"]):
+                scenario = "meeting-interjection"
+            elif any(w in lower_query for w in ["p&l", "budget", "authority"]):
+                scenario = "pl-authority"
+            elif any(w in lower_query for w in ["review", "evaluate", "appraisal"]):
+                scenario = "performance-review"
+            elif any(w in lower_query for w in ["scope", "creep", "expansion"]):
+                scenario = "scope-expansion"
+
+            # Call the user's career coaching scripting model
+            result = generate_script(scenario=scenario, tone="assertive", user_context=payload.user_input)
+
+            if result.error:
+                # Fallback to general explanation if LLM generation throws an error
+                response_text = f"Coaching mode activated for query: '{payload.user_input}'.\n\nError in generator: {result.error}."
+            else:
+                # Format script lines and breakdown into beautiful markdown text
+                response_text = "Here is a verbal script you can use:\n\n"
+                response_text += "\n".join(f"> **\"{line}\"**" for line in result.script)
+                
+                if result.framework:
+                    response_text += f"\n\n### Tactical Framework:\n{result.framework}"
+                
+                if result.breakdown:
+                    response_text += "\n\n### Tactical Breakdown:\n"
+                    for step in result.breakdown:
+                        label = step.get("label", "Tactic")
+                        detail = step.get("text", "")
+                        response_text += f"- **{label}**: {detail}\n"
+
+            legal_overview = "Retrieved career framework coaching guides."
+            if result.evidence:
+                legal_overview = f"Grounded Context: {result.evidence}"
+
+            return {
+                "reasoning": response_text,
+                "category": "Career & Leadership",
+                "riskLevel": "Professional Development",
+                "legalOverview": legal_overview,
+                "recommendedActions": [
+                    {
+                        "id": "act-1",
+                        "title": "Use Coach Script",
+                        "description": "Copy or adapt this script for your conversation.",
+                        "category": "complaint",
+                        "targetRoute": "/drafts",
+                        "priority": "medium"
+                    }
+                ]
+            }
+        except Exception as e:
+            print(f"Career engine failed, falling back to legal RAG: {e}")
+            # fall through to legal RAG if career engine fails structurally
+
+    # -----------------------------------------------------------------------
+    # LEGAL RAG ROUTER: Statutory questions
+    # -----------------------------------------------------------------------
     try:
         # Call the user's local sentence-transformer RAG ask function
         result = ask(payload.user_input)
@@ -22,7 +99,6 @@ def analyze_workplace_incident(payload: AnalysisRequest):
         category = "Legal Information"
         risk_level = "Medium Risk"
         
-        lower_query = payload.user_input.lower()
         if any(w in lower_query for w in ["fire", "fired", "layoff", "harass", "abuse", "threat"]):
             risk_level = "High Risk"
             category = "Workplace Protection"

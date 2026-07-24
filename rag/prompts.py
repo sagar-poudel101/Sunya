@@ -22,8 +22,13 @@ templates can be tested and diffed without a network.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Iterable, Literal, Sequence
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Import type only; embedder owns the retrieval contract.
 try:  # pragma: no cover - import shape differs when run as a script
@@ -55,9 +60,7 @@ DISCLAIMER_CAREER = (
     "Antara is a coaching tool. Adapt the wording to your own voice and context."
 )
 
-# Shown when retrieval falls below threshold. Deliberately specific about what
-# the system does and does not have, so the user knows the gap is coverage and
-# not a judgement about their situation.
+# Shown when retrieval falls below threshold.
 REFUSAL_LEGAL = (
     "I can't answer that from the Nepali statutes I have access to.\n\n"
     "My legal index covers the Constitution of Nepal 2072, the Criminal Code 2074, "
@@ -72,9 +75,45 @@ REFUSAL_LEGAL = (
 
 
 # --------------------------------------------------------------------------- #
-# Context assembly
+# Groq LLM Generation Helper
 # --------------------------------------------------------------------------- #
 
+def generate_groq_response(
+    system_prompt: str, user_prompt: str, context: str = ""
+) -> str:
+    """
+    Generates ultra-fast LLM responses using Groq Llama-3.3-70B.
+    Requires `groq` to be installed (`pip install groq`).
+    """
+    from groq import Groq
+
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise ValueError("GROQ_API_KEY is not set in environment variables.")
+
+    client = Groq(api_key=api_key)
+
+    full_user_content = user_prompt
+    if context:
+        full_user_content = (
+            f"Retrieved Context:\n{context}\n\nUser Question:\n{user_prompt}"
+        )
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": full_user_content},
+        ],
+        model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        temperature=0.3,
+    )
+
+    return chat_completion.choices[0].message.content
+
+
+# --------------------------------------------------------------------------- #
+# Context assembly
+# --------------------------------------------------------------------------- #
 
 @dataclass(slots=True)
 class BuiltPrompt:
@@ -91,13 +130,7 @@ class BuiltPrompt:
 
 
 def _format_legal_passage(index: int, hit) -> str:
-    """
-    One retrieved statute passage, labelled for the model.
-
-    The citation is included so the model can refer to provisions naturally in
-    prose, but the authoritative citation shown to the user is re-attached from
-    metadata afterwards — the model's copy is never trusted.
-    """
+    """One retrieved statute passage, labelled for the model."""
     header = f"[{index}] {hit.citation}"
     if hit.section_title:
         header += f" — {hit.section_title}"
@@ -178,12 +211,7 @@ Answer the question using only these passages."""
 
 
 def build_legal_prompt(question: str, hits: Sequence) -> BuiltPrompt:
-    """
-    Assemble the legal prompt.
-
-    Callers must apply the score threshold *before* calling this. Reaching here
-    with weak hits means the refusal path was skipped.
-    """
+    """Assemble the legal prompt."""
     passages = "\n\n".join(
         _format_legal_passage(i, h) for i, h in enumerate(hits, start=1)
     )
@@ -309,13 +337,7 @@ def build_career_prompt(
     scenario_label: str | None = None,
     user_context: str | None = None,
 ) -> BuiltPrompt:
-    """
-    Assemble the scripting prompt.
-
-    `hits` are optional. When retrieval is weak the model writes from its own
-    knowledge of SBI and STAR, which is adequate — the corpus contains no
-    scripts to copy, only framework description and statistics.
-    """
+    """Assemble the scripting prompt."""
     label = scenario_label or scenario.replace("-", " ").title()
     brief = SCENARIO_BRIEFS.get(scenario, "")
     tone_brief = TONE_BRIEFS.get(tone, TONE_BRIEFS["assertive"])
@@ -351,10 +373,6 @@ def build_career_prompt(
 # --------------------------------------------------------------------------- #
 # Incident documentation
 # --------------------------------------------------------------------------- #
-# Converts a distressed, fragmented account into a structured record. This is
-# the highest-value output in the product: contemporaneous documentation with
-# objective detail is what survives scrutiny, and emotional narrative is what
-# gets dismissed.
 
 INCIDENT_SYSTEM = """\
 You are Antara's incident documentation engine. Someone is describing something \
@@ -417,22 +435,18 @@ def build_incident_prompt(account: str) -> BuiltPrompt:
 # --------------------------------------------------------------------------- #
 # Query rewriting
 # --------------------------------------------------------------------------- #
-# People describe what happened in ordinary language; statutes use terms of art.
-# "They fired me for complaining" retrieves better as "termination of employment
-# following a complaint, protection of complainant, retaliation".
 
 REWRITE_SYSTEM = """\
-You convert a plain-language question into search terms for a Nepali statute \
-index.
+You convert a plain-language question into search terms for a Nepali statute index.
 
-Output search terms only — no explanation, no punctuation beyond commas, no \
-quotation marks.
+Output search terms only — no explanation, no punctuation beyond commas.
 
-Replace everyday phrasing with the words the law uses. "Got fired" becomes \
-"termination of employment, dismissal". "My boss touched me" becomes "sexual \
-harassment, physical contact, workplace". "They moved me to a worse job after I \
-complained" becomes "transfer, protection of complainant, retaliation, \
-departmental action".
+Replace everyday phrasing with statutory terms:
+- "death threats" or "death threads" -> "criminal intimidation, threat to kill, offense against life, personal liberty"
+- "got fired" -> "termination of employment, dismissal"
+- "my boss touched me" -> "sexual harassment, physical contact, workplace"
+- "online harassment" -> "electronic transactions act, cyber crime, intimidation"
+
 
 Include both the concept and the likely statutory heading. Keep it under fifteen \
 words.\
@@ -451,7 +465,6 @@ def build_rewrite_prompt(question: str) -> BuiltPrompt:
 # --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
-
 
 def format_sources_block(sources: Iterable[dict]) -> str:
     """Render citations for display beneath an answer."""
@@ -475,4 +488,5 @@ __all__ = [
     "build_legal_prompt",
     "build_rewrite_prompt",
     "format_sources_block",
+    "generate_groq_response",
 ]
