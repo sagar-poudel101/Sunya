@@ -1,93 +1,222 @@
-import React, { useState } from 'react';
-import { mockPosts } from '../services/mockFeedData';
-import type { Post } from '../types/feed';
-import {
-  Sparkles, Heart, MessageSquare, Share2, CheckCircle2,
-  TrendingUp, ShieldAlert, Filter, PlusCircle
+// src/pages/FeedPage.tsx
+import React, { useState, useEffect } from 'react';
+import { 
+  ShieldAlert, 
+  ArrowRight, 
+  Lock, 
+  Heart, 
+  MessageSquare, 
+  Share2, 
+  Filter,
+  Send,
+  Info,
+  Award
 } from 'lucide-react';
 
 interface FeedPageProps {
   onNavigateToAssistant: () => void;
+  onNavigateToTriage: () => void;
 }
 
-export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant }) => {
-  const [posts, setPosts] = useState<Post[]>(mockPosts);
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [newPostText, setNewPostText] = useState('');
+export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNavigateToTriage }) => {
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [newPost, setNewPost] = useState('');
+  interface Post {
+    id: string | number;
+    author: string;
+    role: string;
+    category: string;
+    time: string;
+    content: string;
+    link?: string;
+    likes: number;
+    comments: number;
+    isLiked: boolean;
+  }
 
-  const categories = ['All', 'Legal Guidance', 'Mental Health', 'Career Growth', 'Safety Tips'];
+  const [posts, setPosts] = useState<Post[]>([
+    {
+      id: 1,
+      author: 'Maya Sharma',
+      role: 'Verified Rights Advocate',
+      category: 'Workplace Protection',
+      time: '2 hours ago',
+      content: 'Always keep objective written records of communication, project handoffs, and performance reviews. Conditional workplace perks or pressure tied to personal favors violate standard labor rights.',
+      likes: 28,
+      comments: 6,
+      isLiked: false
+    },
+    {
+      id: 2,
+      author: 'Legal Resource Note',
+      role: 'Official Guide',
+      category: 'Legal Rights',
+      time: 'Yesterday',
+      content: 'When submitting a formal complaint to HR or an Internal Complaints Committee (ICC), ensure your documentation covers dates, exact times, specific occurrences, and witness details.',
+      likes: 45,
+      comments: 12,
+      isLiked: false
+    }
+  ]);
+  const [isLoadingNews, setIsLoadingNews] = useState(false);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      setIsLoadingNews(true);
+      try {
+        const response = await fetch('http://localhost:8000/api/news');
+        const data = await response.json();
+        if (response.ok && data.success && data.posts) {
+          setPosts(prev => {
+            const staticPosts = prev.filter(p => typeof p.id === 'number');
+            return [...staticPosts, ...data.posts];
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load news feed:', err);
+      } finally {
+        setIsLoadingNews(false);
+      }
+    };
+    fetchNews();
+  }, []);
+
+  const categories = ['All', 'Workplace Protection', 'Legal Rights', 'Safety Tips', 'Mentorship'];
 
   const handleCreatePost = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPostText.trim()) return;
+    if (!newPost.trim()) return;
 
-    const newPost: Post = {
-      id: `post-${Date.now()}`,
-      authorName: 'You (SafeSpace User)',
-      authorTitle: 'Community Member',
-      isVerified: false,
-      category: 'Career Growth',
-      title: 'Community Discussion',
-      content: newPostText,
-      tags: ['Discussion', 'Support'],
-      likesCount: 0,
-      commentsCount: 0,
-      timestamp: 'Just now'
+    const createdPost = {
+      id: Date.now(),
+      author: 'Anonymous Community Member',
+      role: 'Community Post',
+      category: activeCategory === 'All' ? 'General' : activeCategory,
+      time: 'Just now',
+      content: newPost,
+      likes: 0,
+      comments: 0,
+      isLiked: false
     };
 
-    setPosts([newPost, ...posts]);
-    setNewPostText('');
+    setPosts([createdPost, ...posts]);
+    setNewPost('');
   };
 
-  const handleLike = (id: string) => {
-    setPosts(posts.map(p => p.id === id ? { ...p, likesCount: p.likesCount + 1 } : p));
+  const handleLike = (id: number | string) => {
+    setPosts(posts.map(post => {
+      if (post.id === id) {
+        return {
+          ...post,
+          likes: post.isLiked ? post.likes - 1 : post.likes + 1,
+          isLiked: !post.isLiked
+        };
+      }
+      return post;
+    }));
   };
 
-  const filteredPosts = selectedCategory === 'All' 
+  const filteredPosts = activeCategory === 'All' 
     ? posts 
-    : posts.filter(p => p.category === selectedCategory);
+    : posts.filter(p => p.category === activeCategory);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 font-['Manrope'] grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="max-w-5xl mx-auto px-4 py-6 space-y-8 font-['Manrope']">
       
-      {/* LEFT SIDEBAR: Navigation & Categories */}
-      <aside className="lg:col-span-3 space-y-4">
-        
-        {/* Quick AI Assistant Trigger Banner */}
-        <div className="bg-linear-to-br from-[#7c6af2] to-[#6855e0] rounded-3xl p-5 text-white shadow-md">
-          <div className="flex items-center space-x-2 text-[#DCD4FF] mb-2 font-['Sora'] font-bold text-xs uppercase tracking-wider">
-            <Sparkles size={16} />
-            <span>AI Decision Engine</span>
+      {/* 🚀 1-CLICK STEALTH TRIAGE HERO BANNER */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-gray-900 via-indigo-950 to-purple-950 rounded-3xl p-6 sm:p-8 text-white shadow-md border border-gray-800">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-purple-200 border border-white/10">
+              <Lock size={12} className="text-emerald-400" />
+              <span>Encrypted Stealth Engine</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black font-['Sora'] leading-tight">
+              Need to Safely Document an Incident or Whistleblow?
+            </h2>
+            <p className="text-xs text-purple-200/80 leading-relaxed">
+              Use our guided 4-step logging form to record facts, voice notes, and witness details, or dispatch an anonymous report directly to authorities.
+            </p>
           </div>
-          <h3 className="font-extrabold text-lg font-['Sora'] leading-snug">
-            Need Private AI Analysis?
-          </h3>
-          <p className="text-xs text-white/80 mt-1 leading-relaxed">
-            Describe your situation privately. Get instant legal rights analysis and complaint drafts.
-          </p>
+
           <button
-            onClick={onNavigateToAssistant}
-            className="mt-4 w-full py-2.5 px-4 bg-white text-[#7c6af2] hover:bg-[#DCD4FF] font-bold text-xs rounded-xl transition shadow-sm flex items-center justify-center space-x-2 font-['Sora']"
+            onClick={onNavigateToTriage}
+            className="px-6 py-3.5 bg-[#7c6af2] hover:bg-[#6855e0] text-white text-xs font-bold rounded-2xl transition-all shadow-lg flex items-center justify-center space-x-2.5 whitespace-nowrap cursor-pointer transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span>Launch AI Assistant</span>
+            <ShieldAlert size={16} />
+            <span>Launch Stealth Triage</span>
+            <ArrowRight size={14} />
           </button>
         </div>
+      </div>
 
-        {/* Categories Filter */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs space-y-3">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider font-['Sora'] flex items-center space-x-2">
-            <Filter size={14} />
-            <span>Feed Categories</span>
-          </h4>
-          <div className="flex flex-col space-y-1">
+      {/* 🤝 MENTORSHIP & LEGAL AID CALLOUT */}
+      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-12 h-12 bg-[#7c6af2] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-xs">
+            <Award size={24} />
+          </div>
+          <div>
+            <h3 className="text-sm font-extrabold text-gray-900 font-['Sora']">
+              Connect with Verified Women Mentors & Legal Advisors
+            </h3>
+            <p className="text-xs text-gray-600 mt-0.5">
+              Get 1-on-1 confidential guidance on career navigation, rights defense, and workplace support.
+            </p>
+          </div>
+        </div>
+        <button 
+          onClick={onNavigateToAssistant}
+          className="px-4 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition whitespace-nowrap shadow-xs"
+        >
+          Request Mentor Advice
+        </button>
+      </div>
+
+      {/* ✍️ CREATE POST BOX */}
+      <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
+        <h3 className="text-xs font-bold text-gray-500 uppercase font-['Sora']">Share updates or ask the community</h3>
+        <form onSubmit={handleCreatePost} className="space-y-3">
+          <textarea
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            placeholder="Share insights, workplace rights questions, or safety advice..."
+            rows={3}
+            className="w-full p-3.5 border border-gray-200 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2] resize-none"
+          />
+          <div className="flex justify-between items-center pt-1">
+            <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-semibold">
+              <Info size={14} className="text-[#7c6af2]" />
+              <span>Posts are reviewed to keep the community safe and constructive.</span>
+            </div>
+            <button
+              type="submit"
+              className="px-5 py-2 bg-[#7c6af2] hover:bg-[#6855e0] text-white text-xs font-bold rounded-xl transition flex items-center space-x-1.5 shadow-xs"
+            >
+              <Send size={13} />
+              <span>Post Update</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* 🔍 FILTER BUTTONS */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center space-x-2">
+            <Filter size={16} className="text-[#7c6af2]" />
+            <h3 className="text-sm font-extrabold text-gray-900 font-['Sora']">Filter Feed Topics</h3>
+          </div>
+          
+          <div className="flex items-center space-x-1.5 overflow-x-auto pb-1">
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`text-left text-xs font-bold px-3 py-2.5 rounded-xl transition ${
-                  selectedCategory === cat
-                    ? 'bg-[#DCD4FF]/60 text-[#7c6af2]'
-                    : 'text-gray-600 hover:bg-gray-50'
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                  activeCategory === cat
+                    ? 'bg-gray-900 text-white shadow-xs'
+                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {cat}
@@ -96,169 +225,65 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant }) => 
           </div>
         </div>
 
-      </aside>
-
-      {/* CENTER FEED: Posts & Discussions */}
-      <main className="lg:col-span-6 space-y-5">
-        
-        {/* Create Post Box */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs">
-          <form onSubmit={handleCreatePost} className="space-y-3">
-            <textarea
-              rows={3}
-              value={newPostText}
-              onChange={(e) => setNewPostText(e.target.value)}
-              placeholder="Share a thought, ask for career advice, or start a discussion..."
-              className="w-full p-3.5 border border-gray-200 rounded-2xl outline-none text-xs font-['Manrope'] focus:ring-2 focus:ring-[#7c6af2] resize-none"
-            />
-            <div className="flex justify-between items-center pt-2">
-              <span className="text-[11px] text-gray-400">
-                💬 Post respectfully & support peers
-              </span>
-              <button
-                type="submit"
-                disabled={!newPostText.trim()}
-                className="px-5 py-2.5 bg-[#7c6af2] hover:bg-[#6855e0] disabled:bg-gray-300 text-white text-xs font-bold rounded-xl transition flex items-center space-x-2 shadow-xs"
-              >
-                <PlusCircle size={15} />
-                <span>Publish Post</span>
-              </button>
-            </div>
-          </form>
-        </div>
-
-        {/* Feed Posts List */}
-        {filteredPosts.map((post) => (
-          <article key={post.id} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-xs space-y-4 hover:border-[#7c6af2]/30 transition">
-            
-            {/* Post Author Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#DCD4FF] text-[#7c6af2] font-bold font-['Sora'] flex items-center justify-center text-sm shadow-xs">
-                  {post.authorName[0]}
-                </div>
-                <div>
-                  <div className="flex items-center space-x-1.5">
-                    <h4 className="text-sm font-bold text-gray-900 font-['Sora']">
-                      {post.authorName}
-                    </h4>
-                    {post.isVerified && (
-                      <CheckCircle2 size={15} className="text-[#7c6af2]" />
-                    )}
+        {/* 📰 POSTS LIST */}
+        <div className="space-y-4">
+          {filteredPosts.map((post) => (
+            <div key={post.id} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gradient-to-tr from-purple-500 to-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                    {post.author.slice(0, 2).toUpperCase()}
                   </div>
-                  <p className="text-[11px] text-gray-500 font-['Manrope']">
-                    {post.authorTitle} • {post.timestamp}
-                  </p>
+                  <div>
+                    <h4 className="text-xs font-bold text-gray-900">{post.author}</h4>
+                    <p className="text-[10px] text-gray-400">{post.time} • {post.role}</p>
+                  </div>
                 </div>
-              </div>
-
-              <span className="text-[10px] uppercase font-extrabold text-[#7c6af2] bg-[#DCD4FF]/50 px-2.5 py-1 rounded-full font-['Sora']">
-                {post.category}
-              </span>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-2">
-              <h3 className="text-base font-extrabold text-gray-900 font-['Sora'] leading-snug">
-                {post.title}
-              </h3>
-              <p className="text-xs text-gray-600 leading-relaxed font-['Manrope']">
-                {post.content}
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {post.tags.map(tag => (
-                <span key={tag} className="text-[10px] text-gray-500 bg-gray-100 px-2.5 py-1 rounded-md font-semibold">
-                  #{tag}
+                <span className="text-[10px] font-bold text-[#7c6af2] bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
+                  {post.category}
                 </span>
-              ))}
-            </div>
-
-            {/* Engagement Footer */}
-            <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-500 font-semibold">
-              <button 
-                onClick={() => handleLike(post.id)} 
-                className="flex items-center space-x-1.5 hover:text-rose-500 transition"
-              >
-                <Heart size={16} />
-                <span>{post.likesCount} Likes</span>
-              </button>
-
-              <button className="flex items-center space-x-1.5 hover:text-[#7c6af2] transition">
-                <MessageSquare size={16} />
-                <span>{post.commentsCount} Comments</span>
-              </button>
-
-              <button className="flex items-center space-x-1.5 hover:text-gray-900 transition">
-                <Share2 size={16} />
-                <span>Share</span>
-              </button>
-            </div>
-
-          </article>
-        ))}
-
-      </main>
-
-      {/* RIGHT SIDEBAR: Verified Mentors & Emergency Line */}
-      <aside className="lg:col-span-3 space-y-4">
-        
-        {/* Emergency Helpline Box */}
-        <div className="bg-[#FF8A80]/15 border border-[#FF8A80]/50 rounded-3xl p-4 text-xs space-y-2">
-          <div className="flex items-center space-x-2 text-[#D32F2F] font-bold font-['Sora']">
-            <ShieldAlert size={18} />
-            <span>Emergency Help</span>
-          </div>
-          <p className="text-gray-700 leading-relaxed">
-            In immediate danger or physical threat? Reach local authorities or emergency hotlines immediately.
-          </p>
-          <a
-            href="tel:100"
-            className="block text-center py-2 bg-[#FF8A80] text-white font-bold rounded-xl hover:bg-red-500 transition shadow-xs"
-          >
-            Call Helpline 100 / 104
-          </a>
-        </div>
-
-        {/* Verified Counselors Spotlight */}
-        <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs space-y-3">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider font-['Sora'] flex items-center space-x-2">
-            <TrendingUp size={14} />
-            <span>Featured Mentors</span>
-          </h4>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs">
-              <div>
-                <p className="font-bold text-gray-900 font-['Sora']">Dr. Roshni Thapa</p>
-                <p className="text-[10px] text-gray-500">Counseling Psychologist</p>
               </div>
-              <button 
-                onClick={onNavigateToAssistant}
-                className="text-[10px] font-bold text-[#7c6af2] bg-[#DCD4FF]/60 px-2.5 py-1 rounded-lg hover:bg-[#7c6af2] hover:text-white transition"
-              >
-                Connect
-              </button>
-            </div>
 
-            <div className="flex items-center justify-between text-xs">
-              <div>
-                <p className="font-bold text-gray-900 font-['Sora']">Adv. Nima Tamang</p>
-                <p className="text-[10px] text-gray-500">Women Rights Advocate</p>
+              <div className="space-y-3">
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  {post.content}
+                </p>
+                {post.link && (
+                  <a 
+                    href={post.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center space-x-1.5 text-xs font-bold text-[#7c6af2] hover:underline"
+                  >
+                    <span>Read full story on {post.author}</span>
+                    <ArrowRight size={12} className="text-[#7c6af2]" />
+                  </a>
+                )}
               </div>
-              <button 
-                onClick={onNavigateToAssistant}
-                className="text-[10px] font-bold text-[#7c6af2] bg-[#DCD4FF]/60 px-2.5 py-1 rounded-lg hover:bg-[#7c6af2] hover:text-white transition"
-              >
-                Connect
-              </button>
-            </div>
-          </div>
-        </div>
 
-      </aside>
+              <div className="flex items-center space-x-6 pt-2 border-t border-gray-100 text-xs text-gray-500 font-semibold">
+                <button 
+                  onClick={() => handleLike(post.id)}
+                  className={`flex items-center space-x-1.5 hover:text-red-500 transition ${post.isLiked ? 'text-red-500' : ''}`}
+                >
+                  <Heart size={16} className={post.isLiked ? 'fill-red-500' : ''} />
+                  <span>{post.likes} Likes</span>
+                </button>
+
+                <button className="flex items-center space-x-1.5 hover:text-gray-900 transition">
+                  <MessageSquare size={16} />
+                  <span>{post.comments} Comments</span>
+                </button>
+
+                <button className="flex items-center space-x-1.5 hover:text-gray-900 transition">
+                  <Share2 size={16} />
+                  <span>Share</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
     </div>
   );

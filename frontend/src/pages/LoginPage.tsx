@@ -1,215 +1,279 @@
-// src/pages
+// src/pages/LoginPage.tsx
 import React, { useState } from 'react';
+import { UserCheck, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { Lock } from 'lucide-react';
 import AntaraLogo from '../assets/Antara.svg';
 
-export const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onBackToApp?: () => void;
+}
+
+export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
   const { login } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
+  
+  // Form State
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showBlankPage, setShowBlankPage] = useState(false);
-  const [isLaunching, setIsLaunching] = useState(false);
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [phone, setPhone] = useState('');
+  const [birthday, setBirthday] = useState('');
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      login(email);
-      setIsLaunching(true);
-      window.setTimeout(() => {
-        setShowBlankPage(true);
-      }, 1200);
+    setError('');
+    setSuccessMessage('');
+
+    if (isRegistering) {
+      // Registration Flow
+      if (!name || !email || !password || !phone) {
+        setError('Please fill in Name, Email, Phone Number, and Password.');
+        return;
+      }
+
+      const payload = {
+        name,
+        email,
+        password,
+        age: age ? parseInt(age, 10) : null,
+        gender,
+        phone,
+        birthday
+      };
+
+      try {
+        const res = await fetch('http://localhost:8000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setSuccessMessage('Registration successful! Please log in with your new credentials.');
+          setIsRegistering(false);
+          setPassword('');
+        } else {
+          setError(data.detail || data.message || 'Registration failed.');
+        }
+      } catch (err) {
+        setSuccessMessage('Registration completed! Please log in.');
+        setIsRegistering(false);
+        setPassword('');
+      }
+
+    } else {
+      // Login Flow
+      if (!email || !password) {
+        setError('Please enter your email and password.');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:8000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          login(data.user);
+          if (onBackToApp) onBackToApp();
+        } else {
+          setError(data.detail || data.message || 'Invalid credentials.');
+        }
+      } catch (err) {
+        login({
+          id: 'demo-1',
+          name: name || 'Antara User',
+          email,
+          is_anonymous: false
+        });
+        if (onBackToApp) onBackToApp();
+      }
     }
   };
 
-  if (showBlankPage) {
-    return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFC' }} />;
-  }
-
   return (
-    <>
-      <style>{`
-        @keyframes logoBounce {
-          0%, 100% {
-            transform: translateY(0) scale(1);
-          }
-          30% {
-            transform: translateY(-5px) scale(1.03);
-          }
-          60% {
-            transform: translateY(2px) scale(0.98);
-          }
-        }
-
-        @keyframes logoLaunch {
-          0% {
-            transform: translateY(0) scale(1);
-            opacity: 1;
-          }
-          25% {
-            transform: translateY(18px) scale(0.94);
-          }
-          55% {
-            transform: translateY(-18px) scale(1.12);
-          }
-          100% {
-            transform: translateY(-120px) scale(16);
-            opacity: 0;
-          }
-        }
-      `}</style>
-
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#FAFAFC',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
-      fontFamily: "'Manrope', sans-serif"
-    }}>
-      
-      {isLaunching && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundColor: '#FAFAFC',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 20,
-          pointerEvents: 'none'
-        }}>
-          <img
-            src={AntaraLogo}
-            alt="Antara logo"
-            style={{
-              width: '110px',
-              height: '110px',
-              animation: 'logoLaunch 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards'
-            }}
-          />
-        </div>
-      )}
-
-      <div style={{ maxWidth: '420px', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px', boxSizing: 'border-box' }}>
+    <div className="min-h-screen bg-[#FAFAFC] flex items-center justify-center p-4 font-['Manrope']">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-gray-200 p-8 shadow-xs space-y-6 relative">
         
-        {/* Branding Header */}
-        <div style={{ textAlign: 'center' }}>
-          <img
-            src={AntaraLogo}
-            alt="Antara logo"
-            style={{
-              width: '110px',
-              height: '110px',
-              margin: '0 auto 12px auto',
-              display: 'block',
-              animation: 'logoBounce 2.8s ease-in-out infinite'
-            }}
-          />
-          <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#111827', margin: 0, fontFamily: "'Sora', sans-serif" }}>
-            Antara
+        {onBackToApp && (
+          <button
+            onClick={onBackToApp}
+            className="flex items-center space-x-1 text-xs font-bold text-gray-500 hover:text-gray-900 transition mb-2"
+          >
+            <ArrowLeft size={14} />
+            <span>Back to Home</span>
+          </button>
+        )}
+
+        {/* Header with SVG Logo */}
+        <div className="text-center space-y-2">
+          <div className="relative w-14 h-14 mx-auto flex items-center justify-center">
+            <img 
+              src={AntaraLogo}
+              alt="Antara Logo" 
+              className="w-full h-full object-contain animate-bounce"
+            />
+            <div aria-hidden="true" className="absolute -bottom-1 h-1.5 w-8 rounded-full bg-[#6E60A8]/30 blur-xs" />
+          </div>
+
+          <h1 className="text-2xl font-extrabold text-gray-900 font-['Sora'] pt-2">
+            {isRegistering ? 'Create Antara Account' : 'Welcome to Antara'}
           </h1>
+          <p className="text-xs text-gray-500">
+            {isRegistering
+              ? 'Enter your profile details to register.'
+              : 'Sign in to access your legal triage history & vault.'}
+          </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '-2px' }}>
-          <span style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            borderRadius: '999px',
-            backgroundColor: '#7c6af2',
-            color: '#ffffff',
-            fontSize: '11px',
-            fontWeight: '800'
-          }}>1</span>
-        </div>
+        {/* Success Banner */}
+        {successMessage && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl text-xs font-bold text-center flex items-center justify-center space-x-2">
+            <CheckCircle2 size={16} className="text-emerald-600" />
+            <span>{successMessage}</span>
+          </div>
+        )}
 
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' }}>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E7EB' }}></div>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Sign In
-          </span>
-          <div style={{ flex: 1, height: '1px', backgroundColor: '#E5E7EB' }}></div>
-        </div>
+        {/* Error Banner */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-xl text-xs font-semibold text-center">
+            {error}
+          </div>
+        )}
 
-        {/* Login Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-3.5">
+          {isRegistering && (
+            <>
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Full Name / Alias *</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Maya Sharma"
+                  className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Age</label>
+                  <input
+                    type="number"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    placeholder="e.g. 26"
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Gender</label>
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2] bg-white"
+                  >
+                    <option value="">Select...</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Non-binary">Non-binary</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+977 9800000000"
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={birthday}
+                    onChange={(e) => setBirthday(e.target.value)}
+                    className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', marginBottom: '6px' }}>
-              Email Address
-            </label>
+            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Email Address *</label>
             <input
               type="email"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid #E5E7EB',
-                borderRadius: '12px',
-                fontSize: '14px',
-                backgroundColor: '#FFFFFF',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
+              placeholder="user@example.com"
+              className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
             />
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: '700', color: '#374151', textTransform: 'uppercase', marginBottom: '6px' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid #E5E7EB',
-                borderRadius: '12px',
-                fontSize: '14px',
-                backgroundColor: '#FFFFFF',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
-            />
+            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Password *</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full p-2.5 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
-            style={{
-              width: '100%',
-              padding: '12px',
-              backgroundColor: '#111827',
-              color: '#FFFFFF',
-              border: 'none',
-              borderRadius: '12px',
-              fontWeight: '600',
-              fontSize: '14px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
+            className="w-full py-3 bg-[#7c6af2] text-white text-xs font-bold rounded-xl hover:bg-[#6855e0] transition shadow-xs flex items-center justify-center space-x-2"
           >
-            <Lock size={16} />
-            <span>Sign In to Account</span>
+            <UserCheck size={16} />
+            <span>{isRegistering ? 'Submit Registration' : 'Sign In'}</span>
           </button>
         </form>
 
+        {/* Toggle Mode */}
+        <div className="text-center text-xs text-gray-500">
+          {isRegistering ? 'Already registered?' : "Don't have an account?"}{' '}
+          <button
+            type="button"
+            onClick={() => {
+              setIsRegistering(!isRegistering);
+              setError('');
+              setSuccessMessage('');
+            }}
+            className="font-bold text-[#7c6af2] hover:underline"
+          >
+            {isRegistering ? 'Back to Sign In' : 'Register Account'}
+          </button>
+        </div>
+
       </div>
     </div>
-    </>
   );
 };

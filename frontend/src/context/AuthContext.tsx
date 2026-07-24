@@ -8,13 +8,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
 
-  const login = (email: string) => {
-    setUser({
-      id: 'usr-101',
-      name: email.split('@')[0],
-      email,
-      isAnonymous: false,
-    });
+  const login = (user: User) => {
+    setUser(user);
     setIsAnonymous(false);
   };
 
