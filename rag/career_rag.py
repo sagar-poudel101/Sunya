@@ -112,6 +112,15 @@ SCENARIO_QUERIES: dict[str, str] = {
     "scope-expansion": (
         "stretch assignment scope sponsorship promotion women"
     ),
+    "stem-coaching": (
+        "women in STEM technology engineering coding robotics science research"
+    ),
+    "empowerment-motivation": (
+        "women empowerment confidence self-belief motivation leadership potential"
+    ),
+    "community-support": (
+        "sisterhood community collaboration networking mentorship support connection"
+    ),
 }
 
 VALID_TONES = ("collaborative", "assertive", "executive")

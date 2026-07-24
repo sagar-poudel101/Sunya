@@ -249,6 +249,15 @@ SCENARIO_BRIEFS: dict[str, str] = {
     "scope-expansion": (
         "She wants formal ownership of work she is already doing informally."
     ),
+    "stem-coaching": (
+        "She is seeking advice on career paths in STEM, coding, robotics, or engineering, and needs guidance on breaking barriers and finding mentorship."
+    ),
+    "empowerment-motivation": (
+        "She needs a boost of confidence, self-belief, and motivation to unlock her potential, dream big, and thrive in her career."
+    ),
+    "community-support": (
+        "She is looking for sisterhood, collaboration, and networking opportunities to rise together with other women changemakers."
+    ),
 }
 
 TONE_BRIEFS: dict[str, str] = {

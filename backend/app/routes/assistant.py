@@ -114,6 +114,12 @@ def analyze_workplace_incident(payload: AnalysisRequest):
             scenario = "performance-review"
         elif any(w in lower_query for w in ["scope", "creep", "expansion"]):
             scenario = "scope-expansion"
+        elif any(w in lower_query for w in ["stem", "code", "engineer", "robotics", "tech", "science", "programming"]):
+            scenario = "stem-coaching"
+        elif any(w in lower_query for w in ["dream", "believe", "empower", "confidence", "courage", "motivate", "potential"]):
+            scenario = "empowerment-motivation"
+        elif any(w in lower_query for w in ["sisterhood", "community", "support", "network", "collaborate", "connection"]):
+            scenario = "community-support"
 
         result = generate_script(scenario=scenario, tone="assertive", user_context=payload.user_input)
 
