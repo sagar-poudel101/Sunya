@@ -9,8 +9,6 @@ import {
   Share2, 
   Filter,
   Send,
-  UserCheck,
-  CheckCircle2,
   Info,
   Award
 } from 'lucide-react';

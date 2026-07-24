@@ -8,7 +8,7 @@ export interface User {
 export interface AuthContextType {
   user: User | null;
   isAnonymous: boolean;
-  login: (email: string) => void;
+  login: (user: User) => void;
   loginAsAnonymous: () => void;
   logout: () => void;
 }

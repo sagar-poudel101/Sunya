@@ -11,10 +11,8 @@ import {
   FileText, 
   CheckCircle2, 
   Lock, 
-  EyeOff, 
   ArrowLeft,
   ShieldCheck,
-  AlertTriangle
 } from 'lucide-react';
 
 interface TriagePageProps {
@@ -53,9 +51,57 @@ export const TriagePage: React.FC<TriagePageProps> = ({ onBackToFeed, onNavigate
     }
   };
 
-  const handleWhistleblowSubmit = (e: React.FormEvent) => {
+  const handleIncidentSubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/incidents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          raw_text: rawText,
+          incident_date_time: incidentDateTime || null,
+          location: location || null,
+          witnesses: witnesses || null,
+          impact_tasks: impactTasks,
+          impact_pay: impactPay,
+          impact_evaluation: impactEvaluation,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        console.log("Incident logged with ID:", data.id);
+      } else {
+        console.error("Failed to log incident to database:", data.detail);
+      }
+    } catch (err) {
+      console.error('Failed to log incident to backend:', err);
+    }
+    // Navigate to draft page regardless
+    onNavigateToDraft();
+  };
+
+  const handleWhistleblowSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/whistleblow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          authority_target: authorityTarget,
+          whistleblow_message: whistleblowMessage,
+          is_anonymous: isAnonymous,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        alert(data.detail || 'Failed to submit whistleblower report.');
+      }
+    } catch (err) {
+      console.error('Failed to submit whistleblower report:', err);
+      // Fallback
+      setSubmitted(true);
+    }
   };
 
   return (
@@ -291,7 +337,7 @@ export const TriagePage: React.FC<TriagePageProps> = ({ onBackToFeed, onNavigate
                 </button>
               ) : (
                 <button
-                  onClick={onNavigateToDraft}
+                  onClick={handleIncidentSubmit}
                   className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-xs font-bold hover:bg-black transition flex items-center space-x-2 shadow-xs"
                 >
                   <FileText size={16} />

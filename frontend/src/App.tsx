@@ -9,8 +9,6 @@ import { DraftPage } from './pages/DraftPage';
 import { TriagePage } from './pages/TriagePage';
 
 const DashboardContent: React.FC = () => {
-  const { user } = useAuth();
-  
   // Navigation State
   const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'directory' | 'triage' | 'draft'>('feed');
   const [showLoginModal, setShowLoginModal] = useState(false);

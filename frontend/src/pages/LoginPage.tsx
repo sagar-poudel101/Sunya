@@ -55,12 +55,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
         });
         const data = await res.json();
 
-        if (data.success) {
+        if (res.ok && data.success) {
           setSuccessMessage('Registration successful! Please log in with your new credentials.');
           setIsRegistering(false);
           setPassword('');
         } else {
-          setError(data.message || 'Registration failed.');
+          setError(data.detail || data.message || 'Registration failed.');
         }
       } catch (err) {
         setSuccessMessage('Registration completed! Please log in.');
@@ -83,11 +83,11 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
         });
         const data = await res.json();
 
-        if (data.success) {
+        if (res.ok && data.success) {
           login(data.user);
           if (onBackToApp) onBackToApp();
         } else {
-          setError(data.message || 'Invalid credentials.');
+          setError(data.detail || data.message || 'Invalid credentials.');
         }
       } catch (err) {
         login({
