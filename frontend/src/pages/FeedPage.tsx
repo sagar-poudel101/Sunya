@@ -151,49 +151,49 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNav
       </div>
 
       {/* 🤝 MENTORSHIP & LEGAL AID CALLOUT */}
-      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3.5">
-          <div className="w-12 h-12 bg-[#7c6af2] text-white rounded-2xl flex items-center justify-center shrink-0 shadow-xs">
-            <Award size={24} />
+      <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-[#7c6af2] text-white rounded-xl flex items-center justify-center shrink-0 shadow-xs">
+            <Award size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-extrabold text-gray-900 font-['Sora']">
+            <h3 className="text-xs font-extrabold text-gray-900 font-['Sora']">
               Connect with Verified Women Mentors & Legal Advisors
             </h3>
-            <p className="text-xs text-gray-600 mt-0.5">
+            <p className="text-[11px] text-gray-600 mt-0.5">
               Get 1-on-1 confidential guidance on career navigation, rights defense, and workplace support.
             </p>
           </div>
         </div>
         <button 
           onClick={onNavigateToAssistant}
-          className="px-4 py-2.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl transition whitespace-nowrap shadow-xs"
+          className="px-3.5 py-2 bg-gray-900 hover:bg-black text-white text-[11px] font-bold rounded-lg transition whitespace-nowrap shadow-xs cursor-pointer"
         >
           Request Mentor Advice
         </button>
       </div>
 
       {/* ✍️ CREATE POST BOX */}
-      <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-xs space-y-3">
-        <h3 className="text-xs font-bold text-gray-500 uppercase font-['Sora']">Share updates or ask the community</h3>
-        <form onSubmit={handleCreatePost} className="space-y-3">
+      <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-xs space-y-2.5">
+        <h3 className="text-[10px] font-bold text-gray-500 uppercase font-['Sora']">Share updates or ask the community</h3>
+        <form onSubmit={handleCreatePost} className="space-y-2.5">
           <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
             placeholder="Share insights, workplace rights questions, or safety advice..."
-            rows={3}
-            className="w-full p-3.5 border border-gray-200 rounded-2xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2] resize-none"
+            rows={2}
+            className="w-full p-3 border border-gray-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-[#7c6af2] resize-none"
           />
-          <div className="flex justify-between items-center pt-1">
-            <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-semibold">
-              <Info size={14} className="text-[#7c6af2]" />
+          <div className="flex justify-between items-center pt-0.5">
+            <div className="flex items-center space-x-2 text-[9px] text-gray-400 font-semibold">
+              <Info size={12} className="text-[#7c6af2]" />
               <span>Posts are reviewed to keep the community safe and constructive.</span>
             </div>
             <button
               type="submit"
-              className="px-5 py-2 bg-[#7c6af2] hover:bg-[#6855e0] text-white text-xs font-bold rounded-xl transition flex items-center space-x-1.5 shadow-xs"
+              className="px-4 py-1.5 bg-[#7c6af2] hover:bg-[#6855e0] text-white text-xs font-bold rounded-lg transition flex items-center space-x-1.5 shadow-xs cursor-pointer"
             >
-              <Send size={13} />
+              <Send size={12} />
               <span>Post Update</span>
             </button>
           </div>
@@ -228,23 +228,23 @@ export const FeedPage: React.FC<FeedPageProps> = ({ onNavigateToAssistant, onNav
         {/* 📰 POSTS LIST */}
         <div className="space-y-4">
           {filteredPosts.map((post) => (
-            <div key={post.id} className="bg-white p-6 rounded-3xl border border-gray-200 shadow-xs space-y-4">
+            <div key={post.id} className="bg-white p-4.5 rounded-2xl border border-gray-200 shadow-xs space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gradient-to-tr from-purple-500 to-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-9 h-9 bg-gradient-to-tr from-purple-500 to-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-[11px] shadow-xs">
                     {post.author.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-gray-900">{post.author}</h4>
-                    <p className="text-[10px] text-gray-400">{post.time} • {post.role}</p>
+                    <p className="text-[9px] text-gray-400">{post.time} • {post.role}</p>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold text-[#7c6af2] bg-purple-50 border border-purple-100 px-2.5 py-1 rounded-full">
+                <span className="text-[9px] font-bold text-[#7c6af2] bg-purple-50 border border-purple-100 px-2 py-0.5 rounded-md">
                   {post.category}
                 </span>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <p className="text-xs text-gray-700 leading-relaxed">
                   {post.content}
                 </p>
