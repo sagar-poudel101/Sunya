@@ -85,7 +85,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
         const data = await res.json();
 
         if (res.ok && data.success) {
-          login(data.user);
+          login({
+            id: data.user.id || 'demo-admin',
+            name: data.user.name || 'Admin Officer',
+            email: data.user.email || email,
+            isAnonymous: false,
+            isAdmin: (data.user.email || email) === 'admin@antara.org.np' || (data.user.email || email) === 'admin@gmail.com'
+          });
           if (onBackToApp) onBackToApp();
         } else {
           setError(data.detail || data.message || 'Invalid credentials.');
@@ -95,7 +101,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
           id: 'demo-1',
           name: name || 'Antara User',
           email,
-          is_anonymous: false
+          isAnonymous: false,
+          isAdmin: email === 'admin@antara.org.np' || email === 'admin@gmail.com'
         });
         if (onBackToApp) onBackToApp();
       }

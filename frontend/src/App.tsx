@@ -11,9 +11,16 @@ import { DirectoryPage } from './pages/DirectoryPage';
 import { AdminPage } from './pages/AdminPage';
 
 const DashboardContent: React.FC = () => {
+  const { user } = useAuth();
   // Navigation State
   const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'directory' | 'triage' | 'draft' | 'admin'>('feed');
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'admin' && !user?.isAdmin) {
+      setActiveTab('feed');
+    }
+  }, [user, activeTab]);
 
   // Keep Navbar highlighted on 'assistant' when inside sub-routes like draft or triage
   const navTab = (activeTab === 'draft' || activeTab === 'triage') ? 'assistant' : activeTab;

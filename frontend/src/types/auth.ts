@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email?: string;
   isAnonymous: boolean;
+  isAdmin?: boolean;
 }
 
 export interface AuthContextType {

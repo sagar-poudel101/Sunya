@@ -83,17 +83,19 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenL
               <span>Support Directory</span>
             </button>
 
-            <button
-              onClick={() => setActiveTab('admin')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'admin'
-                  ? 'bg-[#7c6af2] text-white shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Database size={15} />
-              <span>Admin Audit</span>
-            </button>
+            {user?.isAdmin && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === 'admin'
+                    ? 'bg-[#7c6af2] text-white shadow-xs'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                }`}
+              >
+                <Database size={15} />
+                <span>Admin Audit</span>
+              </button>
+            )}
           </nav>
 
           {/* User Profile / Auth State */}
