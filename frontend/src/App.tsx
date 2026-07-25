@@ -8,10 +8,11 @@ import { AssistantPage } from './pages/AssistantPage';
 import { DraftPage } from './pages/DraftPage';
 import { TriagePage } from './pages/TriagePage';
 import { DirectoryPage } from './pages/DirectoryPage';
+import { AdminPage } from './pages/AdminPage';
 
 const DashboardContent: React.FC = () => {
   // Navigation State
-  const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'directory' | 'triage' | 'draft'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'assistant' | 'directory' | 'triage' | 'draft' | 'admin'>('feed');
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Keep Navbar highlighted on 'assistant' when inside sub-routes like draft or triage
@@ -68,6 +69,11 @@ const DashboardContent: React.FC = () => {
         {/* Verified Support Directory */}
         {activeTab === 'directory' && (
           <DirectoryPage />
+        )}
+
+        {/* Admin Dashboard Audit Panel */}
+        {activeTab === 'admin' && (
+          <AdminPage />
         )}
       </main>
     </div>

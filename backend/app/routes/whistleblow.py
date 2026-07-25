@@ -24,3 +24,14 @@ def create_whistleblow(payload: WhistleblowCreate, db: Session = Depends(get_db)
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to submit whistleblower report: {str(e)}"
         )
+
+@router.get("")
+def list_whistleblows(db: Session = Depends(get_db)):
+    try:
+        reports = db.query(WhistleblowerReport).order_by(WhistleblowerReport.id.desc()).all()
+        return reports
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch whistleblower reports: {str(e)}"
+        )

@@ -28,3 +28,14 @@ def create_incident(payload: IncidentCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to log incident: {str(e)}"
         )
+
+@router.get("")
+def list_incidents(db: Session = Depends(get_db)):
+    try:
+        incidents = db.query(IncidentReport).order_by(IncidentReport.id.desc()).all()
+        return incidents
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch incidents: {str(e)}"
+        )

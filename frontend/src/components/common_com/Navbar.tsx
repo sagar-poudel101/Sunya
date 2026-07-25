@@ -1,13 +1,13 @@
 // src/components/common_com/Navbar.tsx
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn } from 'lucide-react';
+import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn, Database } from 'lucide-react';
 import AntaraLogo from '../../assets/Antara.svg';
 import AntaraBrandLogo from '../../assets/ANTARA_logo.svg';
 
 interface NavbarProps {
-  activeTab: 'feed' | 'assistant' | 'directory';
-  setActiveTab: (tab: 'feed' | 'assistant' | 'directory') => void;
+  activeTab: 'feed' | 'assistant' | 'directory' | 'admin';
+  setActiveTab: (tab: 'feed' | 'assistant' | 'directory' | 'admin') => void;
   onOpenLogin?: () => void;
 }
 
@@ -81,6 +81,18 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenL
             >
               <Users size={15} />
               <span>Support Directory</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'admin'
+                  ? 'bg-[#7c6af2] text-white shadow-xs'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              }`}
+            >
+              <Database size={15} />
+              <span>Admin Audit</span>
             </button>
           </nav>
 
