@@ -178,35 +178,15 @@ def analyze_workplace_incident(payload: AnalysisRequest):
             print(f"Career coaching failed: {e}. Falling back to general query.")
 
     # =======================================================================
-    # ROUTE C: General Inquiry (Direct LLM Knowledge Bypass - No Refusals)
+    # ROUTE C: General Inquiry (Off-topic refusal returning null)
     # =======================================================================
-    try:
-        generator = get_generator("groq")
-        if generator is None:
-            generator = get_generator("gemini")
-            
-        if generator is not None:
-            system_prompt = (
-                "You are Antara's helpful AI assistant. The user is asking a general knowledge "
-                "or off-topic question. Answer the question directly, clearly, and friendly. "
-                "Do NOT refuse, and do NOT say you are only trained for specific legal topics. "
-                "Help the user to the best of your ability."
-            )
-            response_text = generator.generate(
-                system_prompt,
-                payload.user_input,
-                temperature=0.7,
-                max_tokens=1000
-            )
-            return {
-                "reasoning": response_text,
-                "category": "General Inquiry",
-                "riskLevel": None,
-                "legalOverview": "General knowledge inquiry.",
-                "recommendedActions": []
-            }
-    except Exception as e:
-        print(f"General query routing failed: {e}")
+    return {
+        "reasoning": "null",
+        "category": "General Inquiry",
+        "riskLevel": None,
+        "legalOverview": "Out of scope query.",
+        "recommendedActions": []
+    }
         
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

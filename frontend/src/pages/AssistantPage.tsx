@@ -145,7 +145,9 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({
       const botMsg: Message = {
         id: `bot-${Date.now()}`,
         sender: 'assistant',
-        text: data.reasoning || data.response || "Based on legal guidelines, your situation involves potential workplace coercion.",
+        text: (data.reasoning === 'null' || !data.reasoning) 
+          ? "I am only trained to answer questions regarding workplace safety, Nepalese labor rights, and career development."
+          : data.reasoning,
         category: data.category,
         riskLevel: data.riskLevel,
         legalClauses: data.legalOverview,
