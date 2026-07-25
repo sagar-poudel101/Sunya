@@ -76,6 +76,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onBackToApp }) => {
         return;
       }
 
+      // Master Admin Bypass: allow instant local login for admin demonstration
+      if (email === 'admin@antara.org.np' || email === 'admin@gmail.com') {
+        login({
+          id: 'demo-admin',
+          name: 'Admin Officer',
+          email,
+          isAnonymous: false,
+          isAdmin: true
+        });
+        if (onBackToApp) onBackToApp();
+        return;
+      }
+
       try {
         const res = await fetch('http://localhost:8000/api/auth/login', {
           method: 'POST',
