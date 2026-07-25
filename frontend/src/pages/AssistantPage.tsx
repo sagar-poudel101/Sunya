@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, Bot, User, RefreshCw, FileText, Lock, ArrowRight } from 'lucide-react';
+import AntaraIcon from '../assets/Antara.svg';
 
 interface RecommendedAction {
   id: string;
@@ -245,13 +246,29 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({
         ))}
 
         {isTyping && (
-          <div className="flex items-center space-x-2 text-xs text-gray-500">
-            <div className="w-8 h-8 rounded-xl bg-[#DCD4FF] text-[#7c6af2] flex items-center justify-center font-bold">
-              <Bot size={16} />
+          <div className="flex items-start space-x-3 animate-pulse">
+            {/* Animated SVG Loader */}
+            <div className="w-8 h-8 rounded-xl bg-white border border-gray-100 flex items-center justify-center flex-shrink-0 shadow-xs overflow-hidden">
+              <img
+                src={AntaraIcon}
+                className="w-5 h-5 animate-antara-wave"
+                alt="Antara loading"
+              />
             </div>
-            <div className="bg-white border border-gray-200 px-4 py-2.5 rounded-2xl flex items-center space-x-2">
-              <RefreshCw size={14} className="animate-spin text-[#7c6af2]" />
-              <span className="font-semibold text-xs">RAG Model searching legal database...</span>
+            
+            <div className="bg-white border border-gray-200 p-4 rounded-2xl rounded-tl-none shadow-xs text-xs leading-relaxed space-y-2 max-w-[82%]">
+              <div className="flex items-center space-x-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7c6af2] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7c6af2]"></span>
+                </span>
+                <span className="font-extrabold uppercase text-[9px] tracking-wider text-[#7c6af2] font-['Sora']">
+                  Antara Intelligence RAG
+                </span>
+              </div>
+              <p className="text-[11px] text-gray-500 font-['Manrope']">
+                Scanning statutory indexes & career coaching databases...
+              </p>
             </div>
           </div>
         )}

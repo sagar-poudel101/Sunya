@@ -9,3 +9,22 @@ body {
   color: #1F2937;
   margin: 0;
 }
+
+@keyframes custom-wave {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  25% {
+    transform: translateY(-10px) rotate(-8deg) scale(1.05);
+  }
+  50% {
+    transform: translateY(2px) rotate(8deg) scale(0.98);
+  }
+  75% {
+    transform: translateY(-5px) rotate(-3deg) scale(1.02);
+  }
+}
+
+.animate-antara-wave {
+  animation: custom-wave 1.8s ease-in-out infinite;
+}
