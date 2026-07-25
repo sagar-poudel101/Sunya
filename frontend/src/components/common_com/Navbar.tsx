@@ -1,7 +1,7 @@
 // src/components/common_com/Navbar.tsx
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn, Database } from 'lucide-react';
+import { User as UserIcon, LogOut, Sparkles, Users, LayoutList, LogIn, Database, ArrowLeft } from 'lucide-react';
 import AntaraLogo from '../../assets/Antara.svg';
 import AntaraBrandLogo from '../../assets/ANTARA_logo.svg';
 
@@ -47,41 +47,53 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, onOpenL
 
           {/* Clean 3-Item Navigation */}
           <nav className="hidden md:flex items-center space-x-1 bg-[#FAFAFC] p-1.5 rounded-2xl border border-gray-200/80">
-            <button
-              onClick={() => setActiveTab('feed')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'feed'
-                  ? 'bg-[#7c6af2] text-white shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <LayoutList size={15} />
-              <span>Community Feed</span>
-            </button>
+            {activeTab !== 'admin' ? (
+              <>
+                <button
+                  onClick={() => setActiveTab('feed')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'feed'
+                      ? 'bg-[#7c6af2] text-white shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <LayoutList size={15} />
+                  <span>Community Feed</span>
+                </button>
 
-            <button
-              onClick={() => setActiveTab('assistant')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'assistant'
-                  ? 'bg-[#7c6af2] text-white shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Sparkles size={15} />
-              <span>AI Assistant</span>
-            </button>
+                <button
+                  onClick={() => setActiveTab('assistant')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'assistant'
+                      ? 'bg-[#7c6af2] text-white shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Sparkles size={15} />
+                  <span>AI Assistant</span>
+                </button>
 
-            <button
-              onClick={() => setActiveTab('directory')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                activeTab === 'directory'
-                  ? 'bg-[#7c6af2] text-white shadow-xs'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
-            >
-              <Users size={15} />
-              <span>Support Directory</span>
-            </button>
+                <button
+                  onClick={() => setActiveTab('directory')}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeTab === 'directory'
+                      ? 'bg-[#7c6af2] text-white shadow-xs'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Users size={15} />
+                  <span>Support Directory</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setActiveTab('feed')}
+                className="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition"
+              >
+                <ArrowLeft size={14} />
+                <span>Return to User App</span>
+              </button>
+            )}
 
             {user?.isAdmin && (
               <button
