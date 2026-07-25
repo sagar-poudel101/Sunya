@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-from rag.legal_rag import ask
+from rag.legal_rag import ask, get_generator
 from rag.career_rag import generate_script
 
 router = APIRouter(prefix="/api/analyze", tags=["assistant"])
@@ -18,9 +18,7 @@ def analyze_workplace_incident(payload: AnalysisRequest):
     
     lower_query = payload.user_input.lower()
     
-    # -----------------------------------------------------------------------
-    # LEGAL/HARASSMENT KEYWORDS (Only route to Legal RAG if matches are found)
-    # -----------------------------------------------------------------------
+    # 1. Keywords Lists for Intent Routing
     LEGAL_KEYWORDS = [
         "harass", "harassed", "harassment", "abuse", "abused", "abusive", 
         "sexual", "law", "act", "section", "article", "court", "punish", 
@@ -30,7 +28,21 @@ def analyze_workplace_incident(payload: AnalysisRequest):
         "beat", "beating", "violence", "assault", "battery", "domestic", "physical", "hit"
     ]
     
-    # 1. LEGAL ROUTE: Trigger legal statutes only when legal keywords exist
+    CAREER_KEYWORDS = [
+        "scope", "salary", "raise", "review", "interrupted", 
+        "manager", "boss", "promotion", "credit", "career", "carrier",
+        "coaching", "creep", "leadership", "negotiate", 
+        "negotiation", "talked over", "spoke over", "meeting",
+        "job", "jobs", "find", "goals", "goal", "hiring", "interview",
+        "resume", "cv", "employment", "mentor", "mentorship", "work",
+        "stem", "code", "engineer", "robotics", "tech", "science", "programming",
+        "dream", "believe", "empower", "confidence", "courage", "motivate", "potential",
+        "sisterhood", "community", "support", "network", "collaborate", "connection"
+    ]
+    
+    # =======================================================================
+    # ROUTE A: Legal statutory rights questions
+    # =======================================================================
     if any(keyword in lower_query for keyword in LEGAL_KEYWORDS):
         try:
             result = ask(payload.user_input)
@@ -100,68 +112,103 @@ def analyze_workplace_incident(payload: AnalysisRequest):
             }
         except Exception as e:
             print(f"Legal RAG engine failed: {e}. Falling back to career engine.")
-            # Fall through to career engine if legal fails
             
-    # 2. CAREER/COACHING ROUTE (Default fallback for all other questions)
+    # =======================================================================
+    # ROUTE B: Career development & professional coaching
+    # =======================================================================
+    if any(keyword in lower_query for keyword in CAREER_KEYWORDS):
+        try:
+            scenario = "custom"
+            if any(w in lower_query for w in ["salary", "pay", "raise", "negotiate"]):
+                scenario = "salary-negotiation"
+            elif any(w in lower_query for w in ["interrupt", "talk", "spoke", "meeting"]):
+                scenario = "meeting-interjection"
+            elif any(w in lower_query for w in ["p&l", "budget", "authority"]):
+                scenario = "pl-authority"
+            elif any(w in lower_query for w in ["review", "evaluate", "appraisal"]):
+                scenario = "performance-review"
+            elif any(w in lower_query for w in ["scope", "creep", "expansion"]):
+                scenario = "scope-expansion"
+            elif any(w in lower_query for w in ["stem", "code", "engineer", "robotics", "tech", "science", "programming"]):
+                scenario = "stem-coaching"
+            elif any(w in lower_query for w in ["dream", "believe", "empower", "confidence", "courage", "motivate", "potential"]):
+                scenario = "empowerment-motivation"
+            elif any(w in lower_query for w in ["sisterhood", "community", "support", "network", "collaborate", "connection"]):
+                scenario = "community-support"
+
+            result = generate_script(scenario=scenario, tone="assertive", user_context=payload.user_input)
+
+            if result.error:
+                response_text = f"Coaching mode activated for query: '{payload.user_input}'.\n\nError in generator: {result.error}."
+            else:
+                response_text = "🗣️ **Here is a verbal script you can use:**\n\n"
+                response_text += "\n\n".join(f"> **\"{line}\"**" for line in result.script)
+                
+                if result.framework:
+                    response_text += f"\n\n🎯 **Tactical Framework:** `{result.framework}`"
+                
+                if result.breakdown:
+                    response_text += "\n\n📝 **Strategic Breakdown:**\n"
+                    for step in result.breakdown:
+                        label = step.get("step", "Tactic")
+                        detail = step.get("rationale", "")
+                        response_text += f"- **{label}**: {detail}\n"
+
+            legal_overview = "Retrieved career framework coaching guides."
+            if result.evidence:
+                legal_overview = f"Grounded Context: {result.evidence}"
+
+            return {
+                "reasoning": response_text,
+                "category": "Career & Leadership",
+                "riskLevel": "Professional Development",
+                "legalOverview": legal_overview,
+                "recommendedActions": [
+                    {
+                        "id": "act-1",
+                        "title": "Use Coach Script",
+                        "description": "Copy or adapt this script for your conversation.",
+                        "category": "complaint",
+                        "targetRoute": "/drafts",
+                        "priority": "medium"
+                    }
+                ]
+            }
+        except Exception as e:
+            print(f"Career coaching failed: {e}. Falling back to general query.")
+
+    # =======================================================================
+    # ROUTE C: General Inquiry (Direct LLM Knowledge Bypass - No Refusals)
+    # =======================================================================
     try:
-        scenario = "custom"
-        if any(w in lower_query for w in ["salary", "pay", "raise", "negotiate"]):
-            scenario = "salary-negotiation"
-        elif any(w in lower_query for w in ["interrupt", "talk", "spoke", "meeting"]):
-            scenario = "meeting-interjection"
-        elif any(w in lower_query for w in ["p&l", "budget", "authority"]):
-            scenario = "pl-authority"
-        elif any(w in lower_query for w in ["review", "evaluate", "appraisal"]):
-            scenario = "performance-review"
-        elif any(w in lower_query for w in ["scope", "creep", "expansion"]):
-            scenario = "scope-expansion"
-        elif any(w in lower_query for w in ["stem", "code", "engineer", "robotics", "tech", "science", "programming"]):
-            scenario = "stem-coaching"
-        elif any(w in lower_query for w in ["dream", "believe", "empower", "confidence", "courage", "motivate", "potential"]):
-            scenario = "empowerment-motivation"
-        elif any(w in lower_query for w in ["sisterhood", "community", "support", "network", "collaborate", "connection"]):
-            scenario = "community-support"
-
-        result = generate_script(scenario=scenario, tone="assertive", user_context=payload.user_input)
-
-        if result.error:
-            response_text = f"Coaching mode activated for query: '{payload.user_input}'.\n\nError in generator: {result.error}."
-        else:
-            response_text = "🗣️ **Here is a verbal script you can use:**\n\n"
-            response_text += "\n\n".join(f"> **\"{line}\"**" for line in result.script)
+        generator = get_generator("groq")
+        if generator is None:
+            generator = get_generator("gemini")
             
-            if result.framework:
-                response_text += f"\n\n🎯 **Tactical Framework:** `{result.framework}`"
-            
-            if result.breakdown:
-                response_text += "\n\n📝 **Strategic Breakdown:**\n"
-                for step in result.breakdown:
-                    label = step.get("step", "Tactic")
-                    detail = step.get("rationale", "")
-                    response_text += f"- **{label}**: {detail}\n"
-
-        legal_overview = "Retrieved career framework coaching guides."
-        if result.evidence:
-            legal_overview = f"Grounded Context: {result.evidence}"
-
-        return {
-            "reasoning": response_text,
-            "category": "Career & Leadership",
-            "riskLevel": "Professional Development",
-            "legalOverview": legal_overview,
-            "recommendedActions": [
-                {
-                    "id": "act-1",
-                    "title": "Use Coach Script",
-                    "description": "Copy or adapt this script for your conversation.",
-                    "category": "complaint",
-                    "targetRoute": "/drafts",
-                    "priority": "medium"
-                }
-            ]
-        }
+        if generator is not None:
+            system_prompt = (
+                "You are Antara's helpful AI assistant. The user is asking a general knowledge "
+                "or off-topic question. Answer the question directly, clearly, and friendly. "
+                "Do NOT refuse, and do NOT say you are only trained for specific legal topics. "
+                "Help the user to the best of your ability."
+            )
+            response_text = generator.generate(
+                system_prompt,
+                payload.user_input,
+                temperature=0.7,
+                max_tokens=1000
+            )
+            return {
+                "reasoning": response_text,
+                "category": "General Inquiry",
+                "riskLevel": None,
+                "legalOverview": "General knowledge inquiry.",
+                "recommendedActions": []
+            }
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An error occurred during career coaching analysis: {str(e)}"
-        )
+        print(f"General query routing failed: {e}")
+        
+    raise HTTPException(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail="An error occurred during analysis routing."
+    )

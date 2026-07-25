@@ -2,6 +2,69 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, Bot, User, RefreshCw, FileText, Lock, ArrowRight } from 'lucide-react';
 import AntaraIcon from '../assets/Antara.svg';
 
+const parseInlineMarkdown = (content: string): React.ReactNode[] => {
+  const parts = content.split(/(\*\*.*?\*\*|\`.*?\`)/);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={index} className="font-extrabold text-gray-950 font-['Sora']">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code key={index} className="bg-gray-100 px-1.5 py-0.5 rounded-md font-mono text-[10px] text-[#7c6af2] font-semibold">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
+};
+
+const renderMarkdown = (text: string): React.ReactNode[] => {
+  if (!text) return [];
+  const lines = text.split('\n');
+  return lines.map((line, idx) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('>')) {
+      const content = trimmed.substring(1).trim();
+      return (
+        <blockquote key={idx} className="border-l-4 border-[#7c6af2] bg-gray-50 pl-3 py-1.5 my-2 italic text-gray-700 font-medium rounded-r-lg">
+          {parseInlineMarkdown(content)}
+        </blockquote>
+      );
+    }
+    if (trimmed.startsWith('###')) {
+      const content = trimmed.substring(3).trim();
+      return (
+        <h4 key={idx} className="text-xs font-black text-gray-950 font-['Sora'] mt-3 mb-1 uppercase tracking-wider">
+          {parseInlineMarkdown(content)}
+        </h4>
+      );
+    }
+    if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+      const content = trimmed.substring(2).trim();
+      return (
+        <ul key={idx} className="list-disc pl-4 my-1 space-y-0.5">
+          <li className="text-[11px] text-gray-600">
+            {parseInlineMarkdown(content)}
+          </li>
+        </ul>
+      );
+    }
+    if (!trimmed) {
+      return <div key={idx} className="h-2" />;
+    }
+    return (
+      <p key={idx} className="text-[11px] text-gray-700 leading-relaxed font-['Manrope']">
+        {parseInlineMarkdown(line)}
+      </p>
+    );
+  });
+};
+
 interface RecommendedAction {
   id: string;
   title: string;
@@ -189,7 +252,11 @@ export const AssistantPage: React.FC<AssistantPageProps> = ({
                   : 'bg-white border border-gray-200 text-gray-800 rounded-tl-none'
               }`}
             >
-              <p className="text-xs whitespace-pre-wrap">{msg.text}</p>
+              {msg.sender === 'user' ? (
+                <p className="text-xs whitespace-pre-wrap">{msg.text}</p>
+              ) : (
+                <div className="space-y-1.5">{renderMarkdown(msg.text)}</div>
+              )}
 
               {/* RAG Legal Context Card */}
               {msg.legalClauses && (
